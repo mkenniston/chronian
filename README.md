@@ -16,6 +16,7 @@ Other notable features of **chronian** include:
 * *Defines 2 types of ordering:*  There are (or should be) two "<, =, >" relationships defined on temporal objects:  (1) temporal order, based on which point is earlier, and (2) sort order, which allows sorting into consistent order even when objects that are value-unequal are temporally equal.  **chronian** explicitly defines these two orderings.
 * *Provides a rich set of customizations:*  There are many details to decide on when defining an abstraction of time, e.g. how leap seconds are treated, which calendar(s) to use, and what restrictions one might place on conversions.  Most temporal libraries make these decisions for you, in ways that may or may not meet your needs.  **chronian** allows you to choose options appropriate to your specific context in a clear, simple way that does not complicate the interface.
 * *tzinfo version-aware:*  Virtually every other temporal library assumes that the tzinfo data is constant, yet this is patently false -- in fact those files are updated every few weeks.  This can lead to obscure and thorny problems in traditional temporal processing, but **chronian** allows you to handle this situation clearly and gracefully.
+* *Minimizes name-space pollution:*  Once you import the "Chron" class into your namespace, everything else is available from that.
 
 Finally, **chronian** meets the fundamental requirements you'd ask of any library:
 
