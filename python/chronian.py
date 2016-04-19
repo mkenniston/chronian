@@ -28,26 +28,6 @@
 from datetime import datetime
 from pytz import timezone, all_timezones
 
-JAN = 1
-FEB = 2
-MAR = 3
-APR = 4
-MAY = 5
-JUN = 6
-JUL = 7
-AUG = 8
-SEP = 9
-OCT = 10
-NOV = 11
-DEC = 12
-
-MON = 0
-TUE = 1
-WED = 2
-THU = 3
-FRI = 4
-SAT = 5
-SUN = 6
 
 class ChronianError(Exception):
     pass
@@ -97,21 +77,29 @@ def validate_options(options):
             raise InvalidOptionValueError('invalid value "%s" for option "%s"' %
                     (value, key))
 
-def validate_fields(fields):
-    for bounds in [['month', 1, 12],
-                   ['day_of_month', 1, 31],
-                   ['hour', 0, 24],
-                   ['minute', 0, 59],
-                   ['second', 0, 60],
-                   ['fraction', 0, 1000]]:
-        (label, min, max) = bounds
-        val = fields[label]
-        if val < min or val > max:
-            raise InvalidFieldValue('invalid field value "%s" for "%s"' %
-                                (val, label))
-
 
 class Chron:
+
+    JAN = 1
+    FEB = 2
+    MAR = 3
+    APR = 4
+    MAY = 5
+    JUN = 6
+    JUL = 7
+    AUG = 8
+    SEP = 9
+    OCT = 10
+    NOV = 11
+    DEC = 12
+
+    MON = 0
+    TUE = 1
+    WED = 2
+    THU = 3
+    FRI = 4
+    SAT = 5
+    SUN = 6
 
     def __init__(self, options={}):
         validate_options(options)

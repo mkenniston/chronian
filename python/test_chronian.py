@@ -25,9 +25,7 @@
 import unittest
 from chronian import \
     Chron, InvalidOptionNameError, InvalidOptionValueError, \
-    MissingTimeZoneError, InvalidTimeZoneError, \
-    JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC, \
-    MON, TUE, WED, THU, FRI, SAT, SUN
+    MissingTimeZoneError, InvalidTimeZoneError
 
 
 class ChronTest(unittest.TestCase):
@@ -99,13 +97,13 @@ class ChronPointTest(unittest.TestCase):
     def testPointCtorHeadArgs(self):
         p = self.line.point(1957, 1, 3, 22)
         self.assertEqual(1957, p.year())
-        self.assertEqual(JAN, p.month())
+        self.assertEqual(Chron.JAN, p.month())
         self.assertEqual(3, p.day_of_month())
         self.assertEqual(22, p.hour())
         self.assertEqual(0, p.minute())
         self.assertEqual(0, p.second())
         self.assertEqual(0, p.fraction())
-        self.assertEqual(THU, p.day_of_week())
+        self.assertEqual(Chron.THU, p.day_of_week())
 
     def testPointCtorTailArgs(self):
         p = self.line.point(1957, minute=23, second=45, fraction=789)
@@ -113,7 +111,7 @@ class ChronPointTest(unittest.TestCase):
         self.assertEqual(23, p.minute())
         self.assertEqual(45, p.second())
         self.assertEqual(789, p.fraction())
-        self.assertEqual(TUE, p.day_of_week())
+        self.assertEqual(Chron.TUE, p.day_of_week())
 
     def testPointFormatNoArg(self):
         p = self.line.point(1969, 7, 20, 20, 18)
