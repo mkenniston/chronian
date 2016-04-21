@@ -1,4 +1,6 @@
-# chronian
+[back to Table of Contents](docs/TOC.md)
+
+# Chronian -- Overview
 
 **chronian** is a temporal library, i.e. one for manipulating date-and-time data.  The primary ways in which it differs from other temporal libraries are:
 
@@ -29,3 +31,6 @@ Finally, **chronian** meets the fundamental requirements you'd ask of any librar
 This library is very much a work-in-progress, and it is in its early stages.  It is most definitely *not* production quality, and many of the points described above are *design goals* that have not yet been implemented.
 
 Feedback is welcome, and your good ideas could influence the design.  You can contact me at *mike@chronian.com*.
+
+---
+Copyright (c) 2016 Michael S. Kenniston
