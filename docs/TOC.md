@@ -1,8 +1,14 @@
 # Chronian -- Table of Contents
 
+[License](../LICENSE)
+
 [Overview](../README.md)
 
 [Quick Start](quickstart.md)
+
+[Examples](examples.md)
+
+[API Reference](apiref.md)
 
 [Design Philosophy](design.md)
 
