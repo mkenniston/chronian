@@ -168,9 +168,13 @@ This is also one specific case of **chronian** eschewing class methods.
 
 I struggled with this one.  The basic problem is that in order for a time-point to be properly serialized for persistence, it has to include a time zone.  The IANA time zone names are widely accepted as *the* standard so we have to be compatible with that -- but the official names are so long that most programmers just couldn't stomach storing such a large string with every single time point.  In addition, I personally couldn't stomach making up a special, incompatible set of codes just for my own library (and still don't understand why RoR did exactly that).  After a bit of searching, I found a compromise by using another widely-accepted international standard: the airport codes assigned by IATA (or in a few cases, ICAO).  Since most time zones are named after a large city (or a whole country), there is an airport associated with nearly every one, and people in the area are already familiar with the codes.  No literate US resident would find it difficult to guess where LAX, DEN, CHI, and NYC are, and nobody in France or the U.K. would have any trouble deciphering LON or PAR.
 
+The ICAO list is more inclusive so it would seem simpler to just use that for all the codes, but we prefer the IATA code when there is one because (1) The IATA codes are shorter, and (2) the IATA codes are better known (they are the ones on your luggage tags).
+
 The algorithm for assigning these codes is:
-1. If the zone is defined as an offset, code it as "+/-HHM", truncating the low-order minutes digit. (e.g. "-070")
-2. Extract the name of the city (or region, or country) from the IANA id.
+0. When a number of IANA names are synonyms for semantically equivalent time zones, they can all map to the same short code.  For example, "UTC", "GMT", "GMT+0", "Zulu", and "Etc/Zulu" all mean the same thing, so they can all map to "Z".
+However, just being linked does not make two zones equivalent, e.g. even when a country currently uses one zone it still reserves the right to change in the future, so we count (and code) that country's zone as distinct.
+1. If the zone is defined as an offset, code it as "+/-HH" (e.g. "-07").
+2. Extract the name of the city (or region, or country) from the IANA id.  If the name isn't that format, skip ahead.
 3. If IATA defines a code for the whole city or metro area, use that (e.g. NYC).
 4. Find the largest airport in the city/region, or the nearest airport if the city has none of its own.
 5. If IATA defines a 3-letter code for that airport, use it (e.g. LAX).
