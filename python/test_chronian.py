@@ -24,30 +24,39 @@
 
 import unittest
 from chronian import \
-    Chron, InvalidOptionNameError, InvalidOptionValueError, \
-    MissingTimeZoneError, InvalidTimeZoneError
+    Chron, ChronClock, InvalidOptionNameError, InvalidOptionValueError, \
+    MissingTimeZoneError
 
 
 class ChronTest(unittest.TestCase):
 
     def testChronCtorNoOptions(self):
         options = Chron().options()
-        self.assertEqual('Proleptic Gregorian calendar', options['date_system'])
-        self.assertEqual('collapse leap seconds', options['leap_seconds'])
-        self.assertEqual('microsecond', options['resolution'])
-        self.assertEqual('modern 24-hour clock', options['time_system'])
-        self.assertEqual(None, options['time_zone_id'])
+        self.assertEqual('Proleptic Gregorian calendar',
+                         options['date_system'])
+        self.assertEqual('collapse leap seconds',
+                         options['leap_seconds'])
+        self.assertEqual('microsecond',
+                         options['resolution'])
+        self.assertEqual('modern 24-hour clock',
+                         options['time_system'])
+        self.assertEqual(None,
+                         options['time_zone_id'])
 
     def testChronCtorWithOptions(self):
         chron = Chron({'leap_seconds': 'UTC leap seconds'})
-        self.assertEqual('modern 24-hour clock', chron.options()['time_system'])
-        self.assertEqual('UTC leap seconds', chron.options()['leap_seconds'])
+        self.assertEqual('modern 24-hour clock',
+                         chron.options()['time_system'])
+        self.assertEqual('UTC leap seconds',
+                         chron.options()['leap_seconds'])
 
     def testInvalidOptionName(self):
-        self.assertRaises(InvalidOptionNameError, Chron, {'cat': 'dog'})
+        self.assertRaises(
+            InvalidOptionNameError, Chron, {'cat': 'dog'})
 
     def testInvalidOptionValue(self):
-        self.assertRaises(InvalidOptionValueError, Chron, {'leap_seconds': 'pig'})
+        self.assertRaises(
+            InvalidOptionValueError, Chron, {'leap_seconds': 'pig'})
 
 
 class ChronLineTest(unittest.TestCase):
@@ -62,7 +71,8 @@ class ChronLineTest(unittest.TestCase):
 
     def testLineCtorNoArgsWithZone(self):
         line = self.chron_with_zone.line()
-        self.assertEqual('US/Central', line.options()['time_zone_id'])
+        self.assertEqual('US/Central',
+                         line.options()['time_zone_id'])
 
     def testLineCtorWithArgsNoZone(self):
         self.assertRaises(MissingTimeZoneError,
@@ -73,15 +83,20 @@ class ChronLineTest(unittest.TestCase):
         line = self.chron.line({'date_system': 'Proleptic Julian calendar',
                                 'time_zone_id': 'US/Mountain'})
         options = line.options()
-        self.assertEqual('Proleptic Julian calendar', options['date_system'])
-        self.assertEqual('UTC leap seconds', options['leap_seconds'])
-        self.assertEqual('modern 24-hour clock', options['time_system'])
-        self.assertEqual('US/Mountain', options['time_zone_id'])
-
+        self.assertEqual('Proleptic Julian calendar',
+                         options['date_system'])
+        self.assertEqual('UTC leap seconds',
+                         options['leap_seconds'])
+        self.assertEqual('modern 24-hour clock',
+                         options['time_system'])
+        self.assertEqual('US/Mountain',
+                         options['time_zone_id'])
 
     def testLineName(self):
-        expected = 'Proleptic Gregorian calendar, UTC leap seconds, microsecond, modern 24-hour clock, US/Central'
-        self.assertEqual(expected, self.chron_with_zone.line().name())
+        expected = 'Proleptic Gregorian calendar, UTC leap seconds, ' \
+            'microsecond, modern 24-hour clock, US/Central'
+        self.assertEqual(expected,
+                         self.chron_with_zone.line().name())
 
 
 class ChronPointTest(unittest.TestCase):

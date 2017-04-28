@@ -12,17 +12,18 @@
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is 
+# copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-#       
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
 from datetime import datetime
@@ -55,17 +56,20 @@ class InvalidTimeZoneError(ChronianError):
 
 # the first legal value is the default
 VALID_OPTION_VALUES = {
-    'date_system': ['Proleptic Gregorian calendar',
-                    'Proleptic Julian calendar',
-                   ],
-    'leap_seconds': ['collapse leap seconds',
-                     'smear leap seconds',
-                     'UTC leap seconds',
-                    ],
+    'date_system': [
+        'Proleptic Gregorian calendar',
+        'Proleptic Julian calendar',
+    ],
+    'leap_seconds': [
+        'collapse leap seconds',
+        'smear leap seconds',
+        'UTC leap seconds',
+    ],
     'resolution': ['microsecond'],
     'time_system': ['modern 24-hour clock'],
     'time_zone_id': None,
     }
+
 
 def validate_options(options):
     for key in options:
@@ -74,8 +78,8 @@ def validate_options(options):
         value = options[key]
         legal_values = VALID_OPTION_VALUES[key]
         if legal_values and value not in legal_values:
-            raise InvalidOptionValueError('invalid value "%s" for option "%s"' %
-                    (value, key))
+            raise InvalidOptionValueError(
+                'invalid value "%s" for option "%s"' % (value, key))
 
 
 class Chron:
@@ -124,7 +128,8 @@ class ChronLine:
         self._options.update(options)
         tzid = self._options['time_zone_id']
         if tzid is None:
-            raise MissingTimeZoneError('time zone must be specified for ChronLine')
+            raise MissingTimeZoneError(
+                'time zone must be specified for ChronLine')
         if tzid not in all_timezones:
             raise InvalidTimeZoneError('invalid time zone "%s"' % tzid)
         self._time_zone = timezone(tzid)
@@ -141,8 +146,9 @@ class ChronLine:
     def time_zone(self):
         return self._time_zone
 
-    def point(self, year=1, month=1, day_of_month=1,
-                    hour=0, minute=0, second=0, fraction=0):
+    def point(self,
+              year=1, month=1, day_of_month=1,
+              hour=0, minute=0, second=0, fraction=0):
         return ChronPoint().set_fields(self, year, month, day_of_month,
                                        hour, minute, second, fraction)
 
@@ -152,9 +158,11 @@ class ChronPoint:
     def __init__(self):
         pass
 
-    def set_fields(self, parent, year, month, day_of_month, hour, minute, second, fraction):
+    def set_fields(self, parent,
+                   year, month, day_of_month, hour, minute, second, fraction):
         self._parent = parent
-        self._internal = parent.time_zone().localize(datetime(year, month, day_of_month, hour, minute, second, fraction))
+        self._internal = parent.time_zone().localize(datetime(
+            year, month, day_of_month, hour, minute, second, fraction))
         return self
 
     def year(self):
@@ -181,9 +189,6 @@ class ChronPoint:
     def day_of_week(self):
         return self._internal.weekday()
 
-    def to(self, line):  # convert
-        return self
-
     def through(self, last):  # make interval
         return [self, last]
 
@@ -191,7 +196,8 @@ class ChronPoint:
         other = ChronPoint()
         other._parent = line
         other_zone = other._parent.time_zone()
-        other._internal = other_zone.normalize(self._internal.astimezone(other_zone))
+        other._internal = other_zone.normalize(
+            self._internal.astimezone(other_zone))
         return other
 
     def format(self, spec=None):
@@ -204,7 +210,7 @@ class ChronClock:
         self._line = line
         pass
 
-    def read(line=None):
+    def read(self, line=None):
         if line is None:
             line = self._line
         return line.xfrom()
