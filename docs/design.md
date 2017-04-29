@@ -25,7 +25,7 @@ The Joda-Time library makes its objects immutable, and the rationale for it is s
 By convention **chronian** hides most raw constructors for date-time objects, instead providing factory methods to create them.  While this practice is not essential to the conceptual framework, it has a number of advantages:
 * it is convenient and concise
 * it improves cross-language syntax consistency
-* it leaves a lot of latitude when doing language-ports to use whatever name-spacing and/or class-nesting techniques are customary and appropriate for each target language
+* it leaves a lot of latitude when doing language-ports to use whatever namespacing and/or class-nesting techniques are customary and appropriate for each target language
 * it encourages good practice (injection and mocking) in automated tests.
 
 ## Static vs. Dynamic Type-Checking
@@ -53,47 +53,72 @@ Spec objects have their roots in Joda-Time's "Partials", but **chronian** extend
 There are three classes of Spec objects, each with allowed Fields.  It is critical that the field names are disjoint, so you can infer the type from the field name alone:
 
 * LineSpec
- * date_system
- * time_system
- * leap_seconds
- * resolution
- * time_zone_id
-* PointSpec
- * year
- * month
- * day_of_month
- * hour
- * minute
- * second
- * fraction
- * day_of_week
-* DurationSpec
- * years
- * months
- * weeks
- * days
- * hours
- * minutes
- * seconds
- * fractions
+    * date_system
+    * time_system
+    * leap_seconds
+    * resolution
+    * time_zone_id
 
-For consistency, all three Spec classes work the same way.  Each class Base has the following factory methods for creating BaseSpec objects:
+* PointSpec
+    * year
+    * month
+    * day_of_month
+    * hour
+    * minute
+    * second
+    * fraction
+    * day_of_week
+
+* DurationSpec
+    * years
+    * months
+    * weeks
+    * days
+    * hours
+    * minutes
+    * seconds
+    * fractions
+
+For consistency, all three Spec classes work the same way.  Each class XXX (ChronLine, ChronPoint, or Duration) has the following factory methods for creating XXXSpec objects:
 
 ```
-obj = chron.base_spec()           # creates an empty spec
-obj = chron.base_spec(arg, ...)   # creates a populated spec
-obj = base.spec()                 # creates a spec populated with values from base
-obj = spec.clone()                # creates a new copy of a spec
-obj = chron.field(val)            # creates an empty spec, then changes a field value
-obj = base.field(val)             # creates a populated spec, then changes a field value
-obj = spec.frozen()               # creates an immutable (and thus thread-safe) copy of a spec
+# creating an empty spec
+some_spec = chron.point_spec()
+some_spec = chron.line_spec()
+some_spec = chron.duration_spec()
+
+# creating a populated spec
+some_spec = chron.point_spec(arg, ...)
+some_spec = chron.line_spec(arg, ...)
+some_spec = chron.duration_spec(arg, ...)
+
+# creating a spec populated with values from an existing object
+some_spec = some_point.spec()
+some_spec = some_line.spec()
+some_spec = some_duration.spec()
+
+# creating a new copy of a spec
+some_spec = other_spec.clone()
+
+# creating an empty spec, then changing a field value
+some_point = chron.year(val)
+some_line = chron.resolution(val)
+some_duration = chron.years(val)
+
+# creating a populated spec, then changing a value
+some_spec = some_point.month(val)
+some_spec = some_line.resolution(val)
+some_spec = some_duration.months(val)
+
+# creating an immutable (and thus thread-safe) copy of a spec
+some_spec = other_spec.frozen()
 ```
 
 You can access and change the fields of a spec with these methods:
 
 ```
-val = spec.field()      # returns the value of field
-obj = spec.field(val)   # changes the value of a field (mutator) and returns the spec
+val = some_spec.field()            # returns the value of field
+same_spec = some_spec.field(val)   # changes the value of a field (mutator) and returns the spec
 ```
 
 The two methods that create a Spec object and change one field value in a
@@ -148,7 +173,7 @@ In most cases the "to" methods simply call the "from" factory methods, but both 
 
 Leap seconds are inconvenient, but they're real.  Deal with it, and write code that gives right answers.  It drives me crazy to use a library which cannot do a simple UTC calculation correctly.  (Both Unix/Linux and Windows do this wrong -- even the very definition of time_t is wrong, i.e. it claims to be "seconds past UTC epoch" but is actually "non-leap seconds past UTC epoch".)
 
-On the other hand, the habit of ignoring leap seconds is ingrained in a zillions systems and programmers, so for compatibility **chronian** reluctantly makes "ignore leap seconds" the default.  Ignoring leap seconds also makes the initial prototype *much* easier to build -- but the architecture is there to support leap seconds seamlessly later.
+On the other hand, the habit of ignoring leap seconds is embedded in a zillion systems and ingrained in a zillion programmers, so for compatibility **chronian** reluctantly makes "ignore leap seconds" the default.  Ignoring leap seconds also makes the initial prototype *much* easier to build -- but the architecture is there to support leap seconds seamlessly later.
 
 ## Simple synax and semantics
 
@@ -170,10 +195,11 @@ I struggled with this one.  The basic problem is that in order for a time-point 
 
 The ICAO list is more inclusive so it would seem simpler to just use that for all the codes, but we prefer the IATA code when there is one because (1) The IATA codes are shorter, and (2) the IATA codes are better known (they are the ones on your luggage tags).
 
-The algorithm for assigning these codes is:
+Of course the actual translation is all just table look-up, but if you're curious the algorithm for assigning these codes is:
+
 0. When a number of IANA names are synonyms for semantically equivalent time zones, they can all map to the same short code.  For example, "UTC", "GMT", "GMT+0", "Zulu", and "Etc/Zulu" all mean the same thing, so they can all map to "Z".
 However, just being linked does not make two zones equivalent, e.g. even when a country currently uses one zone it still reserves the right to change in the future, so we count (and code) that country's zone as distinct.
-1. If the zone is defined as an offset, code it as "+/-HH" (e.g. "-07").
+1. If the zone is defined as an offset, code it as "+/-HH" (e.g. "-07").  If the offset is fractional, add "1", "3", or "4" at the end to represent :15, :30, and :45.
 2. Extract the name of the city (or region, or country) from the IANA id.  If the name isn't that format, skip ahead.
 3. If IATA defines a code for the whole city or metro area, use that (e.g. NYC).
 4. Find the largest airport in the city/region, or the nearest airport if the city has none of its own.
@@ -199,9 +225,9 @@ This may seem over-the-top, but there is one specific use case which drives this
 
 A second reason, less compelling but still important, is that automated testing is made easier if we can create special tzinfo files containing weird edge cases that we want to test.
 
-## Name Spacing
+## Namespacing
 
-In large systems name-space pollution can be serious, so **chronian** limits itself to insering *one* name into your namespace.  Everything else is derived off of that.  If you need something guaranteed globally unique, I registered "chronian.com" in part so you can use com.Chronian as the name.
+In large systems namespace pollution can be serious, so **chronian** limits itself to insering *one* name into your namespace.  Everything else is derived off of that.  If you need something guaranteed globally unique, I registered "chronian.com" in part so you can use com.Chronian as the name.
 
 Although not required by the model, for simplicity **chronian** uses the convention that classes have only instance methods, never class methods.  This is easy to remember, and it can make testing simpler.  Another convention is that constants are defined as class values, not instance values.
 
@@ -209,14 +235,22 @@ Although not required by the model, for simplicity **chronian** uses the convent
 
 This idea came from the Boost/C++ library, and is included mainly because it makes Intervals so much more powerful.
 
+## Flexible parsing and formatting (marshalling and unmarshalling)
+
+It would be the height of hubris for a designer to think they can predict all the external formats that a programmer might be forced to use, so **chronian** provides simple defaults for the common cases and a range of customization options to handle nearly any other cases.
+
+## Database Interoperability
+
+One of the most common places to read/write dates-and-times are databases, so **chronian** has to provide facilities to do this easily -- even though databases sometimes make assumptions that clash with the very essence of how the Chronian conceptual model works.
+
 ## Native Interoperability
 
 If this library is to be useful it obviously must be easy to convert between **chronian** objects and native objects, so we include a full complement of conversion methods.  This is not just for convenience; to ensure that conversions (which often have hidden subtleties) are done correctly they really should be included in the library.  Indeed, it would violate the spirit of **chronian** to require the user to ever manipulate an internal representation of a date-time object.
 
 ## Open-Source
 
-No one should own "time", and I'm not looking to make money off this.  (Fame might be nice, but I'm not holding my breath on that one either.)  My goals are (1) to find out if this model works, and (2) to see it widely used if it does work.  Open-source enables both.
+No one should own "time", and I'm not looking to make money off this.  (Fame might stroke my ego, but I'm not holding my breath on that one either.)  My goals are (1) to find out if this model works, and (2) to see it widely used if it does work.  Open-source enables both.
 
 
 ---
-Copyright (c) 2016 Michael S. Kenniston
+Copyright (c) 2016-2017 Michael S. Kenniston
