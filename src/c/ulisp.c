@@ -67,10 +67,11 @@ void error(char *msg) {
 }
 
 void init_regex() {
-  if (regcomp(&WHITE_SPACE_RE, "^[ \f\n\r\t\v]$", 0) ||
-      regcomp(&INTEGER_RE, "^[+-]?[0123456789]+$", 0) ||
-      regcomp(&FLOAT_RE, "[+-]?(\\d+[.]?\\d*|[.]\\d+)(e[+-]\\d+)?$", 0) ||
-      regcomp(&BREAK_RE, "^[ \f\n\r\t\v()';]$", 0)) {
+  int flags = REG_EXTENDED | REG_NOSUB;
+  if (regcomp(&WHITE_SPACE_RE, "^[ \f\n\r\t\v]$", flags) ||
+      regcomp(&INTEGER_RE, "^[+-]?[0-9]+$", flags) ||
+      regcomp(&FLOAT_RE, "[+-]?([0-9]+[.]?[0-9]*|[.][0-9]+)(e[+-][0-9]+)?$", flags) ||
+      regcomp(&BREAK_RE, "^[ \f\n\r\t\v()';]$", flags)) {
     error("failed to compile a regex");
   }
 }
