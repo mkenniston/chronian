@@ -1,0 +1,7 @@
+; random comment
+
+abc #foo'(45	+ a*b #t "x y\\\b\f\n\r\t\vzz ;keepsemi
+\"thingy www";bar
+ q) #f 34.67e+4;fritz
+
+

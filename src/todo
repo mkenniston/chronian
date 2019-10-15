@@ -1,0 +1,17 @@
+TODO:
+
+- document why I do *not* follow language-specific styles: these
+	files are designed to be consistent across languages, not across
+	programmers, because they all get maintained at once.
+
+- fix regex in "C"
+
+- add parsing S-exprs
+- add executing S-exprs
+- add testing framework
+- add self-test
+- add skeleton RuleSet classes
+- add ability to call native objects
+
+- add real chronian classes and methods, w/ tests
+
