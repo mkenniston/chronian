@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 import java.util.Scanner;
 import com.chronian.v0.Util;
 
-class Reader {
+
+class Lexeme {
   static final String LEX_INT = "int";
   static final String LEX_FLOAT = "float";
   static final String LEX_STRING = "string";
@@ -18,6 +19,66 @@ class Reader {
   static final String LEX_RIGHT_PAREN = "right_paren";
   static final String LEX_QUOTE = "quote";
 
+  String type;
+  public Lexeme(String type) { this.type = type; }
+  protected String format(String value) {
+    String result = "<Lexeme, type: " + type;
+    if (value != null) {
+      result = result + ", value = " + value;
+    }
+    result = result + ">";
+    return result;
+  }
+}
+
+class IntLexeme extends Lexeme {
+  int value;
+  public IntLexeme(int n) { super(LEX_INT); this.value = n; }
+  public String toString() { return super.format("" + this.value); }
+}
+
+class FloatLexeme extends Lexeme {
+  float value;
+  public FloatLexeme(float f) { super(LEX_FLOAT); this.value = f; }
+  public String toString() { return super.format("" + this.value); }
+}
+
+class StringLexeme extends Lexeme {
+  String value;
+  public StringLexeme(String s) { super(LEX_STRING); this.value = s; }
+  public String toString() { return super.format("" + this.value); }
+}
+
+class BooleanLexeme extends Lexeme {
+  boolean value;
+  public BooleanLexeme(boolean b) { super(LEX_BOOLEAN); this.value = b; }
+  public String toString() { return super.format("" + this.value); }
+}
+
+class SymbolLexeme extends Lexeme {
+  String value;
+  public SymbolLexeme(String s) { super(LEX_SYMBOL); this.value = s; }
+  public String toString() { return super.format("" + this.value); }
+}
+
+class LeftParenLexeme extends Lexeme {
+  public LeftParenLexeme() { super(LEX_LEFT_PAREN); }
+  public String toString() { return super.format(null); }
+}
+
+class RightParenLexeme extends Lexeme {
+  public RightParenLexeme() { super(LEX_RIGHT_PAREN); }
+  public String toString() { return super.format(null); }
+}
+
+class QuoteLexeme extends Lexeme {
+  public QuoteLexeme() { super(LEX_QUOTE); }
+  public String toString() { return super.format(null); }
+}
+
+
+class Reader {
+
   static final Pattern WHITE_SPACE_RE = Pattern.compile("^[ \\f\\n\\r\\t\\u000B]$");
   static final Pattern INTEGER_RE = Pattern.compile("^[+-]?\\d+$");
   static final Pattern FLOAT_RE = Pattern.compile("[+-]?(\\d+[.]?\\d*|[.]\\d+)(e[+-]\\d+)?$");
@@ -25,64 +86,6 @@ class Reader {
 
   Stack<String> line_buffer = new Stack<String>();
   Scanner input_scanner = new Scanner(System.in);
-
-  static class Lexeme {
-    String type;
-    public Lexeme(String type) { this.type = type; }
-    private String format(String value) {
-      String result = "<Lexeme, type: " + type;
-      if (value != null) {
-        result = result + ", value = " + value;
-      }
-      result = result + ">";
-      return result;
-    }
-  }
-
-  static class IntLexeme extends Lexeme {
-    int value;
-    public IntLexeme(int n) { super(LEX_INT); this.value = n; }
-    public String toString() { return super.format("" + this.value); }
-  }
-
-  static class FloatLexeme extends Lexeme {
-    float value;
-    public FloatLexeme(float f) { super(LEX_FLOAT); this.value = f; }
-    public String toString() { return super.format("" + this.value); }
-  }
-
-  static class StringLexeme extends Lexeme {
-    String value;
-    public StringLexeme(String s) { super(LEX_STRING); this.value = s; }
-    public String toString() { return super.format("" + this.value); }
-  }
-
-  static class BooleanLexeme extends Lexeme {
-    boolean value;
-    public BooleanLexeme(boolean b) { super(LEX_BOOLEAN); this.value = b; }
-    public String toString() { return super.format("" + this.value); }
-  }
-
-  static class SymbolLexeme extends Lexeme {
-    String value;
-    public SymbolLexeme(String s) { super(LEX_SYMBOL); this.value = s; }
-    public String toString() { return super.format("" + this.value); }
-  }
-
-  static class LeftParenLexeme extends Lexeme {
-    public LeftParenLexeme() { super(LEX_LEFT_PAREN); }
-    public String toString() { return super.format(null); }
-  }
-
-  static class RightParenLexeme extends Lexeme {
-    public RightParenLexeme() { super(LEX_RIGHT_PAREN); }
-    public String toString() { return super.format(null); }
-  }
-
-  static class QuoteLexeme extends Lexeme {
-    public QuoteLexeme() { super(LEX_QUOTE); }
-    public String toString() { return super.format(null); }
-  }
 
   void read_next_line() {
     if (input_scanner.hasNextLine()) {
