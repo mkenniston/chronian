@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Main program to run micro-lisp interpreter, which in turn
+will run automated tests for Chronian.
+"""
+
 import sys
 import re
 
@@ -18,118 +23,151 @@ INTEGER_RE = re.compile(r"^[+-]?\d+$")
 FLOAT_RE = re.compile(r"[+-]?(\d+[.]?\d*|[.]\d+)(e[+-]\d+)?$")
 BREAK_RE = re.compile(r"^[ \f\n\r\t\v()';]$")
 
-line_buffer = []
+def error(msg):
+  """ Display an error message, and abort the program.
+  """
+  print msg
+  exit(1)
 
 
-class Lexeme:
-  def __init__(self, type, value):
-    self.type = type
+class Lexeme(object):
+  """ Encapsulate one lexeme read by lexical scanner.
+  """
+  def __init__(self, lex_type, value):
+    self.lex_type = lex_type
     self.value = value
 
   def __repr__(self):
-    return "<Lexeme, type: " + self.type + ", value: " + str(self.value) + ">"
+    return "<Lexeme, type: " + self.lex_type + ", value: " + str(self.value) + ">"
 
 
-def error(msg):
-  print msg
-  exit(1)
- 
-
-def read_next_line():
-  """ Discard current line_buffer, and refill with next line from input.
+class Reader(object):
+  """Read source code from stdin.
   """
-  global line_buffer
-  line_buffer = sys.stdin.readline()
-  line_buffer = list(line_buffer)
-  line_buffer.reverse()
+  line_buffer = []
+
+  def read_next_line(self):
+    """ Discard current line_buffer, and refill with next line from input.
+    """
+    self.line_buffer = sys.stdin.readline()
+    self.line_buffer = list(self.line_buffer)
+    self.line_buffer.reverse()
 
 
-def get_char():
-  """ Return next unused character from the input, or "" if EOF.
-  """
-  global line_buffer
-  if not line_buffer:
-    read_next_line()
-  if not line_buffer:
-    return ""  # end of file
-  return line_buffer.pop()
+  def get_char(self):
+    """ Return next unused character from the input, or "" if EOF.
+    """
+    if not self.line_buffer:
+      self.read_next_line()
+    if not self.line_buffer:
+      return ""  # end of file
+    return self.line_buffer.pop()
 
 
-def un_get_char(c):
-  """ Undo the last get_char().
-  """
-  global line_buffer
-  line_buffer.append(c)
+  def un_get_char(self, c):
+    """ Undo the last get_char().
+    """
+    self.line_buffer.append(c)
 
 
-def scan_string():
-  """ Assume a double-quote has already been read.
-      Read the rest of the string, including the closing double-quote,
-      and return it as a lexeme.
-  """
-  s = []
-  c = get_char()
-  while c != '"':
-    if c == "\\":
-      c = get_char()
-      if not c: error("found EOF while reading a string")
-      elif c == "\\": s.append("\\")
-      elif c == '"': s.append('"')
-      elif c == "b": s.append("\b")
-      elif c == "f": s.append("\f")
-      elif c == "n": s.append("\n")
-      elif c == "r": s.append("\r")
-      elif c == "t": s.append("\t")
-      elif c == "v": s.append("\v")
-      else: error("unsupported escape sequence in string")
-    else:
-      s.append(c)
-    c = get_char()
-  return Lexeme(LEX_STRING, "".join(s))
-
-
-def scan_word():
-  s = []
-  c = get_char()
-  while not BREAK_RE.match(c):
-    s.append(c)
-    c = get_char()
-  un_get_char(c)
-  s = "".join(s)
-  if s == "#t": return Lexeme(LEX_BOOLEAN, True)
-  if s == "#f": return Lexeme(LEX_BOOLEAN, False)
-  if INTEGER_RE.match(s): return Lexeme(LEX_INT, int(s))
-  if FLOAT_RE.match(s): return Lexeme(LEX_FLOAT, float(s))
-  return Lexeme(LEX_SYMBOL, s)
-
-
-def get_lexeme():
-  while True:
-    c = get_char()
-    while WHITE_SPACE_RE.match(c):
-      c = get_char()
+  @staticmethod
+  def parse_escaped_string_char(c):
+    """ Given character "f", return "\f".
+    """
     if not c:
-      return None  # EOF
-    elif c == ";":
-      read_next_line()  # discard comment
-      next
-    elif c == "(":
-      return Lexeme(LEX_LEFT_PAREN, None)
-    elif c == ")":
-      return Lexeme(LEX_RIGHT_PAREN, None)
-    elif c == "'":
-      return Lexeme(LEX_QUOTE, None)
+      error("found EOF while reading a string")
+    if c == "\\":
+      result = "\\"
     elif c == '"':
-      return scan_string()
+      result = '"'
+    elif c == "b":
+      result = "\b"
+    elif c == "f":
+      result = "\f"
+    elif c == "n":
+      result = "\n"
+    elif c == "r":
+      result = "\r"
+    elif c == "t":
+      result = "\t"
+    elif c == "v":
+      result = "\v"
     else:
-      un_get_char(c)
-      return scan_word()
+      error("unsupported escape sequence in string")
+    return result
 
 
-lex = get_lexeme()
-while lex:
-  print lex
-  lex = get_lexeme()
+  def scan_string(self):
+    """ Assume a double-quote has already been read.
+        Read the rest of the string, including the closing double-quote,
+        and return it as a lexeme.
+    """
+    string_chars = []
+    c = self.get_char()
+    while c != '"':
+      if c == "\\":
+        c = self.parse_escaped_string_char(self.get_char())
+      string_chars.append(c)
+      c = self.get_char()
+    return Lexeme(LEX_STRING, "".join(string_chars))
 
-error("Done!")
+
+  def scan_word(self):
+    """ Read one word (symbol, number, or boolean) from input, and return it.
+    """
+    word_chars = []
+    c = self.get_char()
+    while not BREAK_RE.match(c):
+      word_chars.append(c)
+      c = self.get_char()
+    self.un_get_char(c)
+    word = "".join(word_chars)
+    if word == "#t":
+      return Lexeme(LEX_BOOLEAN, True)
+    elif word == "#f":
+      return Lexeme(LEX_BOOLEAN, False)
+    elif INTEGER_RE.match(word):
+      return Lexeme(LEX_INT, int(word))
+    elif FLOAT_RE.match(word):
+      return Lexeme(LEX_FLOAT, float(word))
+    else:
+      return Lexeme(LEX_SYMBOL, word)
+
+
+  def get_lexeme(self):
+    """ Read one lexeme from input, and return it.
+    """
+    while True:
+      c = self.get_char()
+      while WHITE_SPACE_RE.match(c):
+        c = self.get_char()
+      if not c:
+        return None  # EOF
+      elif c == ";":
+        self.read_next_line()  # discard comment
+      elif c == "(":
+        return Lexeme(LEX_LEFT_PAREN, None)
+      elif c == ")":
+        return Lexeme(LEX_RIGHT_PAREN, None)
+      elif c == "'":
+        return Lexeme(LEX_QUOTE, None)
+      elif c == '"':
+        return self.scan_string()
+      else:
+        self.un_get_char(c)
+        return self.scan_word()
+
+
+def main():
+  """ Do everything.
+  """
+  reader = Reader()
+  lex = reader.get_lexeme()
+  while lex:
+    print lex
+    lex = reader.get_lexeme()
+  error("Done!")
+
+
+main()
 
