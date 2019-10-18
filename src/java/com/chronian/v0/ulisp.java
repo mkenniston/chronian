@@ -13,10 +13,10 @@ import com.chronian.v0.Util;
 class ULisp {
   public static void main(String args[]) {
     Reader reader = new Reader();
-    Lexeme lex = reader.get_lexeme();
+    Lexeme lex = reader.read_lexeme();
     while (lex != null) {
       System.out.println(lex);
-      lex = reader.get_lexeme();
+      lex = reader.read_lexeme();
     }
     Util.error("Done!");
   }

@@ -38,7 +38,7 @@ function read_next_line() {
   }
 }
 
-function get_char() {
+function read_char() {
   if (! line_buffer.length) {
     read_next_line()
   }
@@ -48,16 +48,16 @@ function get_char() {
   return line_buffer.pop()
 }
 
-function un_get_char(c) {
+function un_read_char(c) {
   line_buffer.push(c)
 }
 
 function scan_string() {
   var s = []
-  var c = get_char()
+  var c = read_char()
   while (c != '"') {
     if (c == "\\") {
-      c = get_char()
+      c = read_char()
       if (! c) { error("found EOF while reading a string") }
       else if (c == "\\") { s.push("\\") }
       else if (c == '"') { s.push('"') }
@@ -71,19 +71,19 @@ function scan_string() {
     } else {
       s.push(c)
     }
-    c = get_char()
+    c = read_char()
   }
   return Lexeme(LEX_STRING, s.join(""))
 }
 
 function scan_word() {
   var s = []
-  var c = get_char()
+  var c = read_char()
   while (! BREAK_RE.test(c)) {
     s.push(c)
-    c = get_char(c)
+    c = read_char(c)
   }
-  un_get_char(c)
+  un_read_char(c)
   s = s.join("")
   if (s == "#t") { return Lexeme(LEX_BOOLEAN, true) }
   else if (s == "#f") { return Lexeme(LEX_BOOLEAN, false) }
@@ -92,11 +92,11 @@ function scan_word() {
   else { return Lexeme(LEX_SYMBOL, s) }
 }
 
-function get_lexeme() {
+function read_lexeme() {
   while (true) {
-    var c = get_char()
+    var c = read_char()
     while (WHITE_SPACE_RE.test(c)) {
-      c = get_char()
+      c = read_char()
     }
     if (! c) { return null }
     else if (c == ";") {
@@ -107,16 +107,16 @@ function get_lexeme() {
     else if (c == "'") { return Lexeme(LEX_QUOTE, null) }
     else if (c == '"') { return scan_string() }
     else {
-      un_get_char(c)
+      un_read_char(c)
       return scan_word()
     }
   }
 }
 
-var lex = get_lexeme()
+var lex = read_lexeme()
 while (lex) {
   console.log(lex)
-  lex = get_lexeme()
+  lex = read_lexeme()
 }
 
 error("Done!")

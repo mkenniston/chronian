@@ -14,10 +14,10 @@ def main():
   """ Do everything.
   """
   reader = Reader()
-  lex = reader.get_lexeme()
+  lex = reader.read_lexeme()
   while lex:
     print lex
-    lex = reader.get_lexeme()
+    lex = reader.read_lexeme()
   error("Done!")
 
 

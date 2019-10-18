@@ -85,10 +85,9 @@ void read_next_line() {
   } else {
     cur_char = line_buffer;
   }
-  // fprintf(stderr, "TRACE Q, line = <%s>\n", line_buffer);
 }
 
-char get_char() {
+char read_char() {
   if (line_buffer == NULL || *cur_char == 0) {
     read_next_line();
   }
@@ -98,31 +97,26 @@ char get_char() {
   return *(cur_char++);
 }
 
-void un_get_char(char c) {
+void un_read_char(char c) {
   *(--cur_char) = c;
 }
 
 void append_char(char **buf, char c) {
-  // fprintf(stderr, "trace +A: <%c>, <%d>\n", c, *buf);
   size_t len = *buf ? strlen(*buf) : 0;
-  // fprintf(stderr, "trace +B: %d\n", len);
   char *tmp = malloc(len + 1 + 1);
   if (*buf) { strcpy(tmp, *buf); }
-  // fprintf(stderr, "trace +C\n");
   tmp[len] = c;
   tmp[len+1] = '\0';
-  // fprintf(stderr, "trace +D: <%d>\n", *buf);
   free(*buf);
-  // fprintf(stderr, "trace +E\n");
   *buf = tmp;
 }
 
 Lexeme* scan_string() {
   char *s = NULL;
-  char c = get_char();
+  char c = read_char();
   while (c != '"') {
     if (c == '\\') {
-      c = get_char();
+      c = read_char();
       if (! c) { error("found EOF while reading a string"); }
       else if (c == '\\') { append_char(&s, '\\'); }
       else if (c == '"') { append_char(&s, '"'); }
@@ -136,7 +130,7 @@ Lexeme* scan_string() {
     } else {
       append_char(&s, c);
     }
-    c = get_char();
+    c = read_char();
   }
   Lexeme *lex = new_Lexeme(LEX_STRING);
   (*lex).s_value = s;
@@ -144,20 +138,15 @@ Lexeme* scan_string() {
 }
 
 Lexeme* scan_word() {
-  // fprintf(stderr, "trace S\n");
   char *s = NULL;
   char c[2];
   c[1] = '\0';
-  c[0] = get_char();
-  // fprintf(stderr, "trace T\n");
+  c[0] = read_char();
   while (regexec(&BREAK_RE, c, 0, NULL, 0)) {
-    // fprintf(stderr, "trace U\n");
     append_char(&s, c[0]);
-    c[0] = get_char();
-    // fprintf(stderr, "trace V\n");
+    c[0] = read_char();
   }
-  // fprintf(stderr, "trace W: <%c>\n", c[0]);
-  un_get_char(c[0]);
+  un_read_char(c[0]);
   if (strcmp(s, "#t") == 0) {
     Lexeme *lex = new_Lexeme(LEX_BOOLEAN);
     (*lex).b_value = true;
@@ -169,7 +158,6 @@ Lexeme* scan_word() {
     return lex;
   }
   if (! regexec(&INTEGER_RE, s, 0, NULL, 0)) {
-    fprintf(stderr, "trace Z\n");
     Lexeme *lex = new_Lexeme(LEX_INT);
     (*lex).i_value = atoi(s);
     return lex;
@@ -179,63 +167,42 @@ Lexeme* scan_word() {
     (*lex).f_value = atof(s);
     return lex;
   }
-  // fprintf(stderr, "trace X: <%s>\n", s);
   Lexeme *lex = new_Lexeme(LEX_SYMBOL);
   (*lex).s_value = s;
   return lex;
 }
 
-Lexeme* get_lexeme() {
-  // fprintf(stderr, "trace F\n");
+Lexeme* read_lexeme() {
   while (true) {
-    // fprintf(stderr, "trace G\n");
     char c[2];
     c[1] = '\0';
-    c[0] = get_char();
-    // fprintf(stderr, "trace H: char = <%c>\n", c[0]);
+    c[0] = read_char();
     int rv = regexec(&WHITE_SPACE_RE, c, 0, NULL, 0);
-    // fprintf(stderr, "trace h2: rv = %d\n", rv);
     while (! regexec(&WHITE_SPACE_RE, c, 0, NULL, 0)) {
-      // fprintf(stderr, "trace I\n");
-      c[0] = get_char();
-      // fprintf(stderr, "trace J\n");
+      c[0] = read_char();
     }
-    // fprintf(stderr, "trace K\n");
     if (! c[0]) {
-      // fprintf(stderr, "trace L\n");
       return NULL;  // EOF
     }
     if (c[0] == ';') {
-      // fprintf(stderr, "trace M\n");
       read_next_line();
-      // fprintf(stderr, "trace N\n");
       continue;
     }
-    // fprintf(stderr, "trace O\n");
     if (c[0] == '(') { return new_Lexeme(LEX_LEFT_PAREN); }
     if (c[0] == ')') { return new_Lexeme(LEX_RIGHT_PAREN); }
     if (c[0] == '\'') { return new_Lexeme(LEX_QUOTE); }
     if (c[0] == '"') { return scan_string(); }
-    // fprintf(stderr, "trace P\n");
-    un_get_char(c[0]);
-    // fprintf(stderr, "trace R: <%c>\n", c[0]);
+    un_read_char(c[0]);
     return scan_word();
   }
 }
 
 void main(char **argv) {
-  fprintf(stderr, "a\f\n\r\t\v\n");
-  // fprintf(stderr, "trace 0\n");
   init_regex();
-  // fprintf(stderr, "trace A\n");
-  Lexeme *lex = get_lexeme();
-  // fprintf(stderr, "trace B\n");
+  Lexeme *lex = read_lexeme();
   while (lex) {
-    // fprintf(stderr, "trace C\n");
     print_lexeme(lex);
-    // fprintf(stderr, "trace D\n");
-    lex = get_lexeme();
-    // fprintf(stderr, "trace E\n");
+    lex = read_lexeme();
   }
   error("Done!");
 }

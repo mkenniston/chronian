@@ -101,7 +101,7 @@ class Reader {
     }
   }
 
-  String get_char() {
+  String read_char() {
     if (line_buffer != null && line_buffer.isEmpty()) {
       read_next_line();
     }
@@ -111,7 +111,7 @@ class Reader {
     return line_buffer.pop();
   }
 
-  void un_get_char(String c) {
+  void un_read_char(String c) {
     line_buffer.push(c);
   }
 
@@ -143,25 +143,25 @@ class Reader {
 
   StringLexeme scan_string() {
     Stack<String> s = new Stack<String> ();
-    String c = get_char();
+    String c = read_char();
     while (! c.equals("\"")) {
       if (c.equals("\\")) {
-        c = parse_escaped_string_char(get_char());
+        c = parse_escaped_string_char(read_char());
       }
       s.push(c);
-      c = get_char();
+      c = read_char();
     }
     return new StringLexeme(String.join("", s));
   }
 
   Lexeme scan_word() {
     Stack<String> s = new Stack<String>();
-    String c = get_char();
+    String c = read_char();
     while (! BREAK_RE.matcher(c).matches()) {
       s.push(c);
-      c = get_char();
+      c = read_char();
     }
-    un_get_char(c);
+    un_read_char(c);
     String word = String.join("", s);
     if (word.equals("#t")) {
       return new BooleanLexeme(true);
@@ -176,11 +176,11 @@ class Reader {
     }
   }
 
-  public Lexeme get_lexeme() {
+  public Lexeme read_lexeme() {
     while (true) {
-      String c = get_char();
+      String c = read_char();
       while (WHITE_SPACE_RE.matcher(c).matches()) {
-        c = get_char();
+        c = read_char();
       }
       if (c.equals("")) {
         return null;  // EOF
@@ -195,7 +195,7 @@ class Reader {
       } else if (c.equals("\"")) {
         return scan_string();
       } else {
-        un_get_char(c);
+        un_read_char(c);
         return scan_word();
       }
     }

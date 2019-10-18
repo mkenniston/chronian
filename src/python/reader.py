@@ -48,7 +48,7 @@ class Reader(object):
     self.line_buffer.reverse()
 
 
-  def get_char(self):
+  def read_char(self):
     """ Return next unused character from the input, or "" if EOF.
     """
     if not self.line_buffer:
@@ -58,8 +58,8 @@ class Reader(object):
     return self.line_buffer.pop()
 
 
-  def un_get_char(self, c):
-    """ Undo the last get_char().
+  def un_read_char(self, c):
+    """ Undo the last read_char().
     """
     self.line_buffer.append(c)
 
@@ -97,12 +97,12 @@ class Reader(object):
         and return it as a lexeme.
     """
     string_chars = []
-    c = self.get_char()
+    c = self.read_char()
     while c != '"':
       if c == "\\":
-        c = self.parse_escaped_string_char(self.get_char())
+        c = self.parse_escaped_string_char(self.read_char())
       string_chars.append(c)
-      c = self.get_char()
+      c = self.read_char()
     return Lexeme(LEX_STRING, "".join(string_chars))
 
 
@@ -110,11 +110,11 @@ class Reader(object):
     """ Read one word (symbol, number, or boolean) from input, and return it.
     """
     word_chars = []
-    c = self.get_char()
+    c = self.read_char()
     while not BREAK_RE.match(c):
       word_chars.append(c)
-      c = self.get_char()
-    self.un_get_char(c)
+      c = self.read_char()
+    self.un_read_char(c)
     word = "".join(word_chars)
     if word == "#t":
       return Lexeme(LEX_BOOLEAN, True)
@@ -128,13 +128,13 @@ class Reader(object):
       return Lexeme(LEX_SYMBOL, word)
 
 
-  def get_lexeme(self):
+  def read_lexeme(self):
     """ Read one lexeme from input, and return it.
     """
     while True:
-      c = self.get_char()
+      c = self.read_char()
       while WHITE_SPACE_RE.match(c):
-        c = self.get_char()
+        c = self.read_char()
       if not c:
         return None  # EOF
       elif c == ";":
@@ -148,5 +148,5 @@ class Reader(object):
       elif c == '"':
         return self.scan_string()
       else:
-        self.un_get_char(c)
+        self.un_read_char(c)
         return self.scan_word()
