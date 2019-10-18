@@ -1,0 +1,113 @@
+
+	STYLE GUIDE FOR CHRONIAN SOURCE CODE
+	====================================
+
+
+Programming style, especially when formalized into written rules, is
+not an end in itself.  It is a means to an end, so the style rules
+for Chronian code are tailored for two specific goals:
+
+GOAL #1:  For programmers who are immersed in a specific language,
+we want Chronian to feel feel easy and natural to use, without any
+noticeable friction.  For example, to a Java programmer Chronian
+should look just like any other normal Java library.
+
+-- RULE:  The API for each supported language should use the "normal"
+style and conventions of that language.  This includes things things like
+indentation and usage of uppercase/lowercase, but it also extends to the
+use of keyword parameters, the degree of strict type-safety that is
+typically expected, and so on.  
+
+This rule applies only to the API definition (i.e. not the
+implementation) because that's all the user should ever care about.
+
+For our purposes, we define "normal" style by choosing a style guide
+or standard which already exists, which is reasonably complete,
+and which appears to be used by many (if possible, by most) of the
+users of that language.  In practice users won't care about this
+at all because the Chronian API will just "look right", and implementers
+won't often need to look anything up because when you add a new
+class/method/variable to the API you can just copy the way existing
+ones look.  Nevertheless, for reference here are the styles we have chosen:
+	- Python:  https://www.python.org/dev/peps/pep-0008/
+		and run "pylint"
+	- Javascript:  https://standardjs.com
+		and run "standard"
+	- Java:  https://google.github.io/styleguide/javaguide.html
+	- C:  https://www.gnu.org/prep/standards/html_node/Writing-C.html
+		and run "lint"
+
+GOAL #2:  Make maintenance of the implementation code (including
+the test framework) as easy as possible, keeping in mind that:
+
+	(a) any programmer doing such maintenance is likely to be making
+		the same changes to code in *every* language that Chronian
+		supports, and
+	(b) the maintenance programmer is probably *not* an expert -- or
+		even especially fluent -- in every supported language.
+
+Typical style rules are intended to ensure that all the files a
+programmer works with in a given day look as alike as possible.
+Systems are typically written in a single language (or at most two
+or three languages), so enforcing consistency *within* each language 
+will minimize distraction and wasted effort due to arbitrary and
+unnecessary differences.
+
+Chronian style rules are also intended to ensure that all the files a
+programmer works with in a given day look as alike as possible, and
+for the same efficiency reasons.  However, since our programmers have to
+look at potentially a lot of languages all in the same bug fix or update,
+we choose to have a single set of style rules to ensure at least some
+consistency *across* all languages supported by Chronian.
+
+Note: all the following rules apply to the implementation code (i.e.
+not to the API).
+
+-- RULE:  Indent block structure by two spaces per level.
+
+-- RULE:  Name constants in ALL_CAPS_SNAKE_CASE.
+
+-- RULE:  Name classes (and structs) in CamelCase.
+
+-- RULE:  Name variables, parameters, and methods in lowercase_snake_case.
+
+-- RULE:  Name source files with lowercase_snake_case.extension.
+
+-- RULE:  If a name contains an acronym, treat it as a single word.
+For example, class HttpParser or variable usps_postage_amount.
+
+-- RULE:  Put short "if" or "while" statements on a single line.
+
+-- RULE:  Put the open-curly-brace at the end of the "if" or "while" line.
+
+-- RULE:  Put the end-curly-brace on its own line, except for one-liners.
+
+-- RULE:  If the language does not support Classes, then:
+	typedef struct { /* fields */ } MyClassName;
+	void MyClassName_method_name( MyClassName *p_this, /* more args */);
+
+-- RULE:  If the language supports try/catch, use it.
+
+-- RULE:  If the language does not support try/catch, then every API method
+must accept a first argument that points to an ErrorInfo struct.  If the
+method fails, it will populate the struct with info.  If it succeeds,
+it will zero out the error code.  (If there is also a "self" argument,
+the ErrorInfo comes first.)
+
+-- RULE:  Keep the actual logic as consistent as possible across languages.
+That means that if you have to define a 50-line class ClunkyThingy in
+most supported languages, but one language lets you implement the same
+functionality in a completely different way with 5 lines of code using
+a native MagicWang class -- stick with the ClunkyThingy.  When it comes
+time to do a bug fix or enhancement, you want to be doing it the same way
+(to the extent that is possible) in *every* supported language.
+
+-- RULE:  If any of these rules conflict with language requirements, do
+whatever is needed to get the code to compile and run.
+
+-- RULE:  For things that are going to be language-dependent anyway, such
+as the method of including/requiring other modules, doing I/O, and so on,
+use the simplest or most common conventions for that language.
+
+
+END

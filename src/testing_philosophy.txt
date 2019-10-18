@@ -1,0 +1,87 @@
+
+	CHRONIAN TESTING PHILOSOPHY
+	===========================
+
+
+The basic problem of dates and times is the same in every computer language,
+so it seems short-sighted and inefficient to put a lot of work into
+solving it one language at a time.
+
+Chronian supports many different languages, for two major reasons:
+
+	(1) It can be useful to far more programmers if it provides an
+		implementation for the language(s) those programmers are
+		already using or which circumstances force them to use.
+
+	(2) It can provide even more utility to programmers who use multiple
+		languages by supporting a single uniform interface in all
+		those languages.  Then such programmers don't have to do
+		constant mental context-switches every time they switch
+		languages.
+
+Of course, actually implementing a library in multiple languages and keeping
+all those versions consistent is a significant challenge.  Two approaches
+were considered for Chronian:
+
+The first approach is to write the implementation in a single language, e.g.
+Lisp, and then write a translator to generate equivalent code in each target
+language.  Of course, we'd also have to translate the test framework and
+all the tests into the target languages as well.  This "Universal
+Programming Language" approach would be -- to put it mildly -- overly
+ambitious and probably doomed for that reason alone.  [Author's note: I
+would like to finish this project in my lifetime.]  It would also leave
+open the possibility for bugs to creep into the library via bugs in the
+code generators.
+
+The second approach is to manually write a separate implementation of the
+library for each target language.  Then, to guarantee consistency, we could
+write the test suit in Lisp (actually a very tiny micro-Lisp) along with a
+micro-Lisp interpreter for each target language.
+
+Given the moderate size of Chronian and the simplicity of Lisp, this
+combination appears more feasible than writing multiple translators that
+compile reasonable native code from Lisp.  It also provides accceptably tight
+assurances of correctness, since all the target versions of the library
+are tested with literally the same (Lisp) test code.
+
+This second method is the one we have chosen to pursue:
+
+- We manually write a separate version of the Chronian library code for
+each target language.  This way we can exercise human judgement in making
+each API look native for its own language.  To reduce the amount of
+work needed when making changes (e.g. enhancements and bug-fixes), we try
+to keep all the implementation logic consistent, so that when you look at
+e.g. a particular "if" statement in one language implementation, you can
+find the corresponding "if" statement in the other language implementations.
+The similarity won't be perfect, but it will be enough to be a big help.
+
+- We also manually write a micro-Lisp interpreter for each supported
+language, again keeping the code structure as consistent as possible
+between languages.  The micro-Lisp language is kept as small as possible,
+because its only purpose is to run Chronian tests and so it does not need
+much of what a full Lisp would include.  (If you want a "real" micro-Lisp
+there are projects out there to do that.  Chronian is not one of them.)
+The interpreter doesn't even have to be efficient; since it is only used
+by developers testing the Chronian implementation it's ok if it's a little
+bit slow.
+
+- We write the following in micro-Lisp:
+	- The test framework.  This lets you write and execute very
+		simple XUnit-style tests.
+	- The system self-tests.  This verifies that both the micro-Lisp
+		interpreter and the test framework work correctly, in
+		each supported language.
+	- The Chronian unit tests.  This verifies that the actual
+		library code works correctly, in each supported language.
+In combination, these ensure that all of our code is exercised by
+automated tests, in all needed languages.
+
+- Changes to any part of Chronian are made using TDD (Test Driven
+Development).  First you write a new test (in micro-Lisp), and watch it
+fail in each supported language.  Then you make the change in one language
+at a time, watching the tests go green for that language.  When you make
+the change to the last supported language, you're done, with the assurance
+that all the language implementations are still in sync.
+
+END
+
