@@ -32,7 +32,8 @@ class Lexeme(object):
     self.value = value
 
   def __repr__(self):
-    return "<Lexeme, type: " + self.lex_type + ", value: " + str(self.value) + ">"
+    return("<Lexeme, type: " + self.lex_type +
+           ", value: " + str(self.value) + ">")
 
 
 class Reader(object):
@@ -47,7 +48,6 @@ class Reader(object):
     self.line_buffer = list(self.line_buffer)
     self.line_buffer.reverse()
 
-
   def read_char(self):
     """ Return next unused character from the input, or "" if EOF.
     """
@@ -57,12 +57,10 @@ class Reader(object):
       return ""  # end of file
     return self.line_buffer.pop()
 
-
   def un_read_char(self, c):
     """ Undo the last read_char().
     """
     self.line_buffer.append(c)
-
 
   @staticmethod
   def parse_escaped_string_char(c):
@@ -90,7 +88,6 @@ class Reader(object):
       error("unsupported escape sequence in string")
     return result
 
-
   def scan_string(self):
     """ Assume a double-quote has already been read.
         Read the rest of the string, including the closing double-quote,
@@ -104,7 +101,6 @@ class Reader(object):
       string_chars.append(c)
       c = self.read_char()
     return Lexeme(LEX_STRING, "".join(string_chars))
-
 
   def scan_word(self):
     """ Read one word (symbol, number, or boolean) from input, and return it.
@@ -126,7 +122,6 @@ class Reader(object):
       return Lexeme(LEX_FLOAT, float(word))
     else:
       return Lexeme(LEX_SYMBOL, word)
-
 
   def read_lexeme(self):
     """ Read one lexeme from input, and return it.

@@ -30,9 +30,8 @@ won't often need to look anything up because when you add a new
 class/method/variable to the API you can just copy the way existing
 ones look.  Nevertheless, for reference here are the styles we have chosen:
 	- Python:  https://www.python.org/dev/peps/pep-0008/
-		and run "pylint"
+		and run "flake8"
 	- Javascript:  https://standardjs.com
-		and run "standard"
 	- Java:  https://google.github.io/styleguide/javaguide.html
 	- C:  https://www.gnu.org/prep/standards/html_node/Writing-C.html
 		and run "lint"

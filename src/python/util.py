@@ -11,5 +11,5 @@ Utility routines for Chronian micro-lisp interpreter.
 def error(msg):
   """ Display an error message, and abort the program.
   """
-  print msg
+  print(msg)
   exit(1)
