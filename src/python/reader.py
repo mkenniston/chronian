@@ -8,37 +8,17 @@ Chronian micro-lisp code to read s-exprs from input.
 import sys
 import re
 from util import fatal_error
-
-LEX_INT = "int"
-LEX_FLOAT = "float"
-LEX_STRING = "string"
-LEX_BOOLEAN = "boolean"
-LEX_SYMBOL = "symbol"
-LEX_LEFT_PAREN = "left_paren"
-LEX_RIGHT_PAREN = "right_paren"
-LEX_QUOTE = "quote"
-
-WHITE_SPACE_RE = re.compile(r"^[ \f\n\r\t\v]$")
-INTEGER_RE = re.compile(r"^[+-]?\d+$")
-FLOAT_RE = re.compile(r"[+-]?(\d+[.]?\d*|[.]\d+)(e[+-]\d+)?$")
-BREAK_RE = re.compile(r"^[ \f\n\r\t\v()';]$")
-
-
-class Lexeme(object):
-  """ Encapsulate one lexeme read by lexical scanner.
-  """
-  def __init__(self, lex_type, value):
-    self.lex_type = lex_type
-    self.value = value
-
-  def __repr__(self):
-    return("<Lexeme, type: " + self.lex_type +
-           ", value: " + str(self.value) + ">")
+from sexpr import Integer, Float, String, Symbol, Boolean
+from sexpr import Quote, LeftParen, RightParen
 
 
 class Reader(object):
   """Read source code from stdin.
   """
+  WHITE_SPACE_RE = re.compile(r"^[ \f\n\r\t\v]$")
+  INTEGER_RE = re.compile(r"^[+-]?\d+$")
+  FLOAT_RE = re.compile(r"[+-]?(\d+[.]?\d*|[.]\d+)(e[+-]\d+)?$")
+  BREAK_RE = re.compile(r"^[ \f\n\r\t\v()';]$")
   line_buffer = []
 
   def read_next_line(self):
@@ -100,46 +80,46 @@ class Reader(object):
         c = self.parse_escaped_string_char(self.read_char())
       string_chars.append(c)
       c = self.read_char()
-    return Lexeme(LEX_STRING, "".join(string_chars))
+    return String("".join(string_chars))
 
   def scan_word(self):
     """ Read one word (symbol, number, or boolean) from input, and return it.
     """
     word_chars = []
     c = self.read_char()
-    while not BREAK_RE.match(c):
+    while not self.BREAK_RE.match(c):
       word_chars.append(c)
       c = self.read_char()
     self.un_read_char(c)
     word = "".join(word_chars)
     if word == "#t":
-      return Lexeme(LEX_BOOLEAN, True)
+      return Boolean(True)
     elif word == "#f":
-      return Lexeme(LEX_BOOLEAN, False)
-    elif INTEGER_RE.match(word):
-      return Lexeme(LEX_INT, int(word))
-    elif FLOAT_RE.match(word):
-      return Lexeme(LEX_FLOAT, float(word))
+      return Boolean(False)
+    elif self.INTEGER_RE.match(word):
+      return Integer(int(word))
+    elif self.FLOAT_RE.match(word):
+      return Float(float(word))
     else:
-      return Lexeme(LEX_SYMBOL, word)
+      return Symbol(word)
 
   def read_lexeme(self):
     """ Read one lexeme from input, and return it.
     """
     while True:
       c = self.read_char()
-      while WHITE_SPACE_RE.match(c):
+      while self.WHITE_SPACE_RE.match(c):
         c = self.read_char()
       if not c:
         return None  # EOF
       elif c == ";":
         self.read_next_line()  # discard comment
       elif c == "(":
-        return Lexeme(LEX_LEFT_PAREN, None)
+        return LeftParen()
       elif c == ")":
-        return Lexeme(LEX_RIGHT_PAREN, None)
+        return RightParen()
       elif c == "'":
-        return Lexeme(LEX_QUOTE, None)
+        return Quote()
       elif c == '"':
         return self.scan_string()
       else:

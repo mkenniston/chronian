@@ -16,7 +16,7 @@ def main():
   reader = Reader()
   lex = reader.read_lexeme()
   while lex:
-    print(lex)
+    print("< %s, %s >" % (str(type(lex)), str(lex)))
     lex = reader.read_lexeme()
   fatal_error("Done!")
 
