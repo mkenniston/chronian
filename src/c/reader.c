@@ -7,6 +7,7 @@
 #include <regex.h>
 
 #include "reader.h"
+#include "util.h"
 
 const char* const LEX_INT = "int";
 const char* const LEX_FLOAT = "float";

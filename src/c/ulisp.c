@@ -1,6 +1,7 @@
 // -*- coding: utf-8 -*-
 
 #include "reader.h"
+#include "util.h"
 
 void main(char **argv) {
   Reader *reader = Reader_new();

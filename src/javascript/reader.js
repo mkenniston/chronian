@@ -1,5 +1,7 @@
 "use strict"
 
+var util = require ("./util")
+
 const LEX_INT = "int"
 const LEX_FLOAT = "float"
 const LEX_STRING = "string"
@@ -16,11 +18,6 @@ const BREAK_RE = /^[ \f\n\r\t\v()';]$/
 
 function Lexeme(type, value) {
   return {'type': type, 'value': value}
-}
-
-function fatal_error(msg) {
-  console.log(msg)
-  process.exit(1)
 }
 
 class Reader {
@@ -62,7 +59,7 @@ class Reader {
     while (c != '"') {
       if (c == "\\") {
         c = this.read_char()
-        if (! c) { fatal_error("found EOF while reading a string") }
+        if (! c) { util.fatal_error("found EOF while reading a string") }
         else if (c == "\\") { s.push("\\") }
         else if (c == '"') { s.push('"') }
         else if (c == "b") { s.push("\b") }
@@ -71,7 +68,7 @@ class Reader {
         else if (c == "r") { s.push("\r") }
         else if (c == "t") { s.push("\t") }
         else if (c == "v") { s.push("\v") }
-        else { fatal_error("unsupported escape sequence in string") }
+        else { util.fatal_error("unsupported escape sequence in string") }
       } else {
         s.push(c)
       }
@@ -122,6 +119,5 @@ class Reader {
   }
 }
 
-exports.fatal_error = fatal_error
 exports.Reader = Reader
 

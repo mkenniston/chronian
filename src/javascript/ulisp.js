@@ -1,18 +1,17 @@
 "use strict"
 
 var reader_module = require("./reader")
-var fatal_error = reader_module.fatal_error
-var Reader = reader_module.Reader
+var util = require("./util")
 
 function main() {
-  var reader = new Reader()
+  var reader = new reader_module.Reader()
   var lex = reader.read_lexeme()
   while (lex) {
     console.log(lex)
     lex = reader.read_lexeme()
   }
   
-  fatal_error("Done!")
+  util.fatal_error("Done!")
 }
 
 main()
