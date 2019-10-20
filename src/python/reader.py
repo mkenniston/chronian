@@ -7,7 +7,7 @@ Chronian micro-lisp code to read s-exprs from input.
 
 import sys
 import re
-from util import error
+from util import fatal_error
 
 LEX_INT = "int"
 LEX_FLOAT = "float"
@@ -67,7 +67,7 @@ class Reader(object):
     """ Given character "f", return "\f".
     """
     if not c:
-      error("found EOF while reading a string")
+      fatal_error("found EOF while reading a string")
     if c == "\\":
       result = "\\"
     elif c == '"':
@@ -85,7 +85,7 @@ class Reader(object):
     elif c == "v":
       result = "\v"
     else:
-      error("unsupported escape sequence in string")
+      fatal_error("unsupported escape sequence in string")
     return result
 
   def scan_string(self):

@@ -9,6 +9,6 @@ void main(char **argv) {
     Lexeme_print(lex);
     lex = Reader_read_lexeme(reader);
   }
-  error("Done!");
+  fatal_error("Done!");
 }
 

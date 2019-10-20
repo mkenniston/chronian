@@ -118,7 +118,7 @@ class Reader {
   static String parse_escaped_string_char(String c) {
     String result = "";
     if (c.equals("")) {
-      Util.error("found EOF while reading a string");
+      Util.fatal_error("found EOF while reading a string");
     } else if (c.equals("\\")) {
       result = "\\";
     } else if (c.equals("\"")) {
@@ -136,7 +136,7 @@ class Reader {
     } else if (c.equals("v")) {
       result = "\u000B";
     } else {
-      Util.error("unsupported escape sequence in string");
+      Util.fatal_error("unsupported escape sequence in string");
     }
     return result;
   }

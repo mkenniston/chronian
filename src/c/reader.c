@@ -23,7 +23,7 @@ regex_t FLOAT_RE;
 regex_t BREAK_RE;
 
 
-void error(char *msg) {
+void fatal_error(char *msg) {
   printf("%s\n", msg);
   exit(1);
 }
@@ -72,7 +72,7 @@ Reader* Reader_new() {
       regcomp(&INTEGER_RE, "^[+-]?[0-9]+$", flags) ||
       regcomp(&FLOAT_RE, "[+-]?([0-9]+[.]?[0-9]*|[.][0-9]+)(e[+-][0-9]+)?$", flags) ||
       regcomp(&BREAK_RE, "^[ \f\n\r\t\v()';]$", flags)) {
-    error("failed to compile a regex");
+    fatal_error("failed to compile a regex");
   }
 
   Reader* pThis = malloc(sizeof(Reader));
@@ -113,7 +113,7 @@ Lexeme* Reader_scan_string(Reader *pThis) {
     if (c == '\\') {
       c = Reader_read_char(pThis);
       if (! c) {
-        error("found EOF while reading a string");
+        fatal_error("found EOF while reading a string");
       } else if (c == '\\') {
         append_char(&s, '\\');
       } else if (c == '"') {
@@ -131,7 +131,7 @@ Lexeme* Reader_scan_string(Reader *pThis) {
       } else if (c == 'v') {
         append_char(&s, '\v');
       } else {
-        error("unsupported escape sequence in string");
+        fatal_error("unsupported escape sequence in string");
       }
     } else {
       append_char(&s, c);

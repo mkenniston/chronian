@@ -18,7 +18,7 @@ typedef struct {
   char* cur_char;
 } Reader;
 
-void error(char *msg);
+void fatal_error(char *msg);
 void Lexeme_print(Lexeme *pThis);
 Reader* Reader_new();
 Lexeme* Reader_read_lexeme(Reader *pThis);

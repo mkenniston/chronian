@@ -18,7 +18,7 @@ function Lexeme(type, value) {
   return {'type': type, 'value': value}
 }
 
-function error(msg) {
+function fatal_error(msg) {
   console.log(msg)
   process.exit(1)
 }
@@ -62,7 +62,7 @@ class Reader {
     while (c != '"') {
       if (c == "\\") {
         c = this.read_char()
-        if (! c) { error("found EOF while reading a string") }
+        if (! c) { fatal_error("found EOF while reading a string") }
         else if (c == "\\") { s.push("\\") }
         else if (c == '"') { s.push('"') }
         else if (c == "b") { s.push("\b") }
@@ -71,7 +71,7 @@ class Reader {
         else if (c == "r") { s.push("\r") }
         else if (c == "t") { s.push("\t") }
         else if (c == "v") { s.push("\v") }
-        else { error("unsupported escape sequence in string") }
+        else { fatal_error("unsupported escape sequence in string") }
       } else {
         s.push(c)
       }
@@ -122,6 +122,6 @@ class Reader {
   }
 }
 
-exports.error = error
+exports.fatal_error = fatal_error
 exports.Reader = Reader
 

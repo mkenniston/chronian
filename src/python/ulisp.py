@@ -6,7 +6,7 @@ Main program to run micro-lisp interpreter, which in turn
 will run automated tests for Chronian.
 """
 
-from util import error
+from util import fatal_error
 from reader import Reader
 
 
@@ -18,7 +18,7 @@ def main():
   while lex:
     print(lex)
     lex = reader.read_lexeme()
-  error("Done!")
+  fatal_error("Done!")
 
 
 main()

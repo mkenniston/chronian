@@ -8,7 +8,7 @@ Utility routines for Chronian micro-lisp interpreter.
 # import sys
 
 
-def error(msg):
+def fatal_error(msg):
   """ Display an error message, and abort the program.
   """
   print(msg)

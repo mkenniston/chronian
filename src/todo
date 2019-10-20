@@ -4,11 +4,9 @@ TODO:
 	https://data.iana.org/time-zones/tz-link.html  # detailed info
 	https://data.iana.org/time-zones/releases/  # archived releases
 
-- add a Reader class
-- break Reader into separate file
-- change error() to abort()
-- get all var names consistent across langs
+- create Util modules in all lang
 - change Lexeme to SExpr, add types ListItem, Atom, Number, and print method
+- get all var names and modules consistent across langs
 - add parsing S-exprs to Reader
 
 - add executing S-exprs

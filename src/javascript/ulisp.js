@@ -1,7 +1,7 @@
 "use strict"
 
 var reader_module = require("./reader")
-var error = reader_module.error
+var fatal_error = reader_module.fatal_error
 var Reader = reader_module.Reader
 
 function main() {
@@ -12,7 +12,7 @@ function main() {
     lex = reader.read_lexeme()
   }
   
-  error("Done!")
+  fatal_error("Done!")
 }
 
 main()
