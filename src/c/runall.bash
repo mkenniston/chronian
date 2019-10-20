@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 
-gcc -o ulisp ulisp.c
+rm -f ulisp
+gcc -o ulisp reader.c ulisp.c
 cat ../selftest.ulisp | ./ulisp
 

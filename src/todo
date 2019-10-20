@@ -6,7 +6,9 @@ TODO:
 
 - add a Reader class
 - break Reader into separate file
-- add SExpr class, w/ print method
+- change error() to abort()
+- get all var names consistent across langs
+- change Lexeme to SExpr, add types ListItem, Atom, Number, and print method
 - add parsing S-exprs to Reader
 
 - add executing S-exprs
