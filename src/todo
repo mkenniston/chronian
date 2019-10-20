@@ -4,14 +4,14 @@ TODO:
 	https://data.iana.org/time-zones/tz-link.html  # detailed info
 	https://data.iana.org/time-zones/releases/  # archived releases
 
-- change Lexeme to SExpr, add types List, Atom, Number, and print method
+- change Lexeme to SExpr, add types List, Atom, Number, and print method,
+    and add read_sexpr()
 	- python
 	- java
 	- javascript
 	- C
 
 - get all var names and modules consistent across langs
-- add parsing S-exprs to Reader
 
 - add executing S-exprs
 - add testing framework

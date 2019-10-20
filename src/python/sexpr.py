@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Chronian micro-lisp code to read s-exprs from input.
+Chronian micro-lisp code to store s-exprs from input.
 """
 
 
@@ -16,16 +16,6 @@ class SExpr(object):
     return("<SExpr of unknown type>")
 
 
-class Nil(SExpr):
-  """ Special object to hold an empty list.
-  """
-  def __init__(self):
-    pass
-
-  def __repr__(self):
-    return "()"
-
-
 class List(SExpr):
   """ List cell ("cons" pair) for ulisp lists.
   """
@@ -35,12 +25,13 @@ class List(SExpr):
 
   def __repr__(self):
     rest = self
-    result = ["("]
+    result = []
     while (rest):
-      result += rest.left.__repr__()
+      left = rest.left.__repr__() if rest.left else "nil"
+      result.append(left)
       rest = rest.right
-    result += ")"
-    return " ".join(result)
+    result = "(" + " ".join(result) + ")"
+    return result
 
 
 class Atom(SExpr):
@@ -104,7 +95,7 @@ class Boolean(Atom):
     self.value = value
 
   def __repr__(self):
-    return "#true" if self.value else "#false"
+    return "#t" if self.value else "#f"
 
 
 class Quote(Atom):
@@ -135,3 +126,13 @@ class RightParen(Atom):
 
   def __repr__(self):
     return ")"
+
+
+class EOFToken(Atom):
+  """ A special atom that indicates EOF on input.
+  """
+  def __init__(self):
+    pass
+
+  def __repr__(self):
+    return "EOF"

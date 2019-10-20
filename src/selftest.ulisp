@@ -1,5 +1,12 @@
 ; random comment
 
+
+aaa #bbb "ccc" 123 45.67 #f #t
+() (a) (a b c)
+(a (b c) d)
+('j k) (a () b ((())) c)
+(r nil s)
+
 abc #foo'(45	+ a*b #t "x y\\\b\f\n\r\t\vzz ;keepsemi
 \"thingy www";bar
  q) #f 34.67e+4;fritz
