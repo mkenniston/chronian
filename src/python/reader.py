@@ -20,6 +20,7 @@ class Reader(object):
   FLOAT_RE = re.compile(r"[+-]?(\d+[.]?\d*|[.]\d+)(e[+-]\d+)?$")
   BREAK_RE = re.compile(r"^[ \f\n\r\t\v()';]$")
   line_buffer = []
+  nil = Symbol("nil")
 
   def read_next_line(self):
     """ Discard current line_buffer, and refill with next line from input.
@@ -139,7 +140,8 @@ class Reader(object):
         return EOFToken()
     elif isinstance(atom, RightParen) and not in_list:
       fatal_error("found RightParen outside of a list")
-    elif isinstance(atom, Symbol) and atom.name == "nil":
+    elif (isinstance(atom, Symbol) and
+          atom.symbol_number == self.nil.symbol_number):
       return None
     elif isinstance(atom, (Symbol, String, Integer, Float,
                            Boolean, RightParen)):

@@ -5,6 +5,10 @@
 Chronian micro-lisp code to store s-exprs from input.
 """
 
+from symbol_table import SymbolTable
+
+symbol_table = SymbolTable()
+
 
 class SExpr(object):
   """ Holds any S-expression.  Used only as a parent class.
@@ -45,10 +49,10 @@ class Symbol(Atom):
   """ An atom that holds a symbol (distinct from a string).
   """
   def __init__(self, name):
-    self.name = name
+    self.symbol_number = symbol_table.find_or_add(name)
 
   def __repr__(self):
-    return self.name
+    return symbol_table.name(self.symbol_number)
 
 
 class String(Atom):
