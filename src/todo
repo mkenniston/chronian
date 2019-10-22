@@ -20,4 +20,7 @@ TODO:
 - add ability to call native objects
 
 - add real chronian classes and methods, w/ tests (use TDD)
-
+- make a distribution directory, w/ one zip file per supported language,
+	which contains source (library only, not tests), an example
+	program (that works!), and the API spec for that language
+END
