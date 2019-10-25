@@ -1,8 +1,7 @@
 TODO:
 
-- in docs, mention good resources:
-	https://data.iana.org/time-zones/tz-link.html  # detailed info
-	https://data.iana.org/time-zones/releases/  # archived releases
+- learn enough Scheme to implement the needed subset, especially
+lexical scoping, macros, proper terminology, and exception handling
 
 - change Lexeme to SExpr, add types List, Atom, Number, and print method,
     and add read_sexpr()
@@ -23,4 +22,20 @@ TODO:
 - make a distribution directory, w/ one zip file per supported language,
 	which contains source (library only, not tests), an example
 	program (that works!), and the API spec for that language
+
+- write the Appendix that lists and reviews most (?) existing
+datetime libraries
+	- extract the ideas that I want to copy (giving credit where due)
+	- identify what's unique about Chronian (e.g. multi-language support)
+
+- write the Appendix that lists good resources, including:
+	https://data.iana.org/time-zones/tz-link.html  # detailed info
+	https://data.iana.org/time-zones/releases/  # archived releases
+
+- find where the datetime people hang out on reddit, quora, stackoverflow,
+or wherever.
+	- Get involved in the discussions.
+	- Collect interesting problems that people need to solve.
+	- Identify shortcomings in existing libraries.
+
 END
