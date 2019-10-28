@@ -3,6 +3,12 @@ TODO:
 - learn enough Scheme to implement the needed subset, especially
 lexical scoping, macros, proper terminology, and exception handling
 
+- look at ant, set up build files w/ make clean, make test,
+	make distribution zips files, etc.
+
+- add [] list syntax
+- add (a.b) dotted syntax
+
 - change Lexeme to SExpr, add types List, Atom, Number, and print method,
     and add read_sexpr()
 	- python
@@ -10,18 +16,34 @@ lexical scoping, macros, proper terminology, and exception handling
 	- javascript
 	- C
 
+- add executing S-exprs
+
+change names Integer -> LispInteger, SExpr -> LispExpr, etc.
+
+- class hierarchy:
+Value -> SExpr | Callable
+Callable -> Procedure | Transformer
+Procedure -> Lambda | BuiltIn
+Transformer -> DefinedForm | CoreForm | QuoteForm
+
+- add SymbolTable, Environment, lexical scoping, integrate w/ eval()
+- add simple try/throw/catch as CoreForms
+- move lexical scanner to lisp, use scheme to translate into direct
+	memory initialization in each target language
+
 - get all var names and modules consistent across langs
 
-- add executing S-exprs
 - add testing framework
 - add self-test
+
 - add skeleton RuleSet classes
 - add ability to call native objects
-
 - add real chronian classes and methods, w/ tests (use TDD)
 - make a distribution directory, w/ one zip file per supported language,
 	which contains source (library only, not tests), an example
 	program (that works!), and the API spec for that language
+
+- add all the airport codes
 
 - write the Appendix that lists and reviews most (?) existing
 datetime libraries
@@ -37,5 +59,56 @@ or wherever.
 	- Get involved in the discussions.
 	- Collect interesting problems that people need to solve.
 	- Identify shortcomings in existing libraries.
+
+Next batches of languages to support:
+- PHP, C#, C++, Ruby
+- Swift, Objective C, Go
+
+Other Languages to consider adding support for:
+- ELixir
+- Clojure
+- Rust
+- Scheme
+- Perl
+- Delphi/Object Pascal
+- Erlang
+- OCaml
+- Haskell
+- R
+- Matlab
+- F#
+- Groovy
+
+"Free" languages:
+- TypeScript and CoffeeScript (interop with JavaScript)
+- Visual Basic .NET (interop with C#.NET)
+- Kotlin and Scala (interop with Java)
+- Bash (just script it with Python or Ruby)
+
+Other:
+- SQL (not really a programming language, but Chronian needs to
+pay attention to interoperability with SQL data types)
+- HTML and CSS (do not count as programming languages in this context)
+- Assembly (interop with the C version)
+
+Add to docs:
+
+Using Scheme as the test framework is very much in the same spirit as
+the Guile project in GNU.  The big differences are that Chronian implements
+a minimial subset of Scheme instead of the whole language, and it is not
+limited to integrating with C and C++.
+
+Add to docs:
+
+We don't need to provide a full manual for the testing language, because
+there are already lots of good tutorials and books about Scheme.  Read
+the first couple chapters of any of them and you'll be ready to write
+Chronian tests.  We do provide a list of what features and built-ins are
+and are not included in the testing framework:
+
+Add to docs:
+
+An Appendix describing the algorithm for choosing aiport codes as
+short-names for zones.
 
 END
