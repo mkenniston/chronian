@@ -111,4 +111,10 @@ Add to docs:
 An Appendix describing the algorithm for choosing aiport codes as
 short-names for zones.
 
+Add to docs:
+
+Java programmers will be familiar with the goal of "write once, run
+anywhere".  By providing a uniform API, Chronian applies this idea
+in a different context so that you can "learn once, write anywhere".
+
 END
