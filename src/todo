@@ -6,6 +6,11 @@ lexical scoping, macros, proper terminology, and exception handling
 - look at ant, set up build files w/ make clean, make test,
 	make distribution zips files, etc.
 
+- add a symbol table, which "interns" symbols so the are (eq?) and
+	the name is only stored once.  A given symbol may appear more
+	than once in the environment stack.
+	Don't bother interning literal strings.
+
 - add [] list syntax
 - add (a.b) dotted syntax
 
