@@ -183,7 +183,7 @@ FM,KSA,Pacific/Kosrae
 FO,FO,Atlantic/Faroe,Atlantic/Faeroe
 FR,FR,Europe/Paris,CET,MET
 GA,GA,Africa/Libreville
-GB,GB,Europe/London
+GB,GB,Europe/London,GB
 GB,BFS,Europe/Belfast
 GD,GD,America/Grenada
 GE,GE,Asia/Tbilisi
@@ -396,7 +396,7 @@ TO,TO,Pacific/Tongatapu
 TR,TR,Europe/Istanbul,Asia/Istanbul,Turkey
 TT,TT,America/Port_of_Spain
 TV,TV,Pacific/Funafuti
-TW,TW,Asia/Taipei
+TW,TW,Asia/Taipei,ROC
 TZ,TZ,Africa/Dar_es_Salaam
 UA,IEV,Europe/Kiev
 UA,SIP,Europe/Simferopol
@@ -455,7 +455,7 @@ ZA,ZA,Africa/Johannesburg
 ZM,ZM,Africa/Lusaka
 ZW,ZW,Africa/Harare
 ,GMT,Etc/GMT,GMT+0,GMT-0,GMT0,Greenwich,GMT,Etc/GMT-0,Etc/GMT+0,Etc/GMT0
-,Z,UTC,Etc/UTC,Etc/UCT,UCT,UTC,Universal,Zulu,Etc/Universal,Etc/Zulu,Etc/Greenwich
+,Z,UTC,Etc/UTC,Etc/UCT,UCT,Universal,Zulu,Etc/Universal,Etc/Zulu,Etc/Greenwich
 ,-00,Factory
 ,G-14,Etc/GMT-14
 ,G-13,Etc/GMT-13
