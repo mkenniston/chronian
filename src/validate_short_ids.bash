@@ -90,8 +90,26 @@ then
   echo "FAILED - found mismatched regions codes"
   exit 1
 else
-  echo "All region codes match"
+  echo "All region codes match IANA tables"
   rm $TEMP $TZ_REGIONS $CHR_REGIONS
+fi
+
+# make sure 2-char short IDs match their region code
+
+grep -v "^#" $MASTER | egrep '^..[,]..[,]' | tr ',' ' ' | \
+while read REG ID REST
+do
+  if [ $REG != $ID ]
+  then
+    echo "FAILED - short id $ID does not match region $REG"
+    exit 1
+  fi
+done
+if [ $? -ne 0 ]
+then
+  exit 1
+else
+  echo "All 2-char IDs match region code"
 fi
 
 # finish
