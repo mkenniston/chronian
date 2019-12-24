@@ -1,5 +1,44 @@
 TODO:
 
+Sub-project:  "Short IDs"
+    - write intro for group, explain purpose and context, emphasize version
+        zero, if consensus then we will propose back to main tz list
+    - topic:  primary/secondary, the idea, diff from tzdata "link",
+        specific examples
+    - topic:  csv versus tab-separated table
+    - topic:  three choices (a) all region code, (b) all airport code,
+        (c) hybrid
+    - topic: reserve for TAI, UT, TT, etc. ?  if so, include in table? which?
+    - topic: could make even shorter w/ arbitrary 2-letter codes, but then why
+        not just number them (fits in 9-10 bits)?  maybe do both?
+    - topic: could add comments for each entry about why that code was chosen,
+        would that be useful or just hundreds of lines of clutter?
+
+    - look at all tzdata files, see what's in there
+    - read last year of tzdata mailing list, get a feel
+    - post a note:
+        As part of a larger project, I needed a table of short IDs
+    (1-4 characters) for all the IANA-defined time zones,
+    and it turns out that you can avoid most of the "tower of Babel effect"
+    by re-using existing international codes (from ISO, IATA, and ICAO) for
+    the vast majority of the names.  The actual process of building
+    such a table (470-ish entries) was about as tedious
+    and time-consuming as you'd expect it to be, so I'd be
+    happy to share/open-source/contribute this for others to
+    use.  If this is on-topic for this list I can provide more details here;
+    otherwise if you're interested feel free to email me ("mike@chronian.com")
+    off-list.
+
+- ++chronian docs/useful links:
+    https://www.world-airport-codes.com/
+    https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+    https://www.iana.org/time-zones
+    https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+Sub-project:  cross-platform testing
+
+
+
 - learn enough Scheme to implement the needed subset, especially
 lexical scoping, macros, proper terminology, and exception handling
 

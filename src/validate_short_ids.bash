@@ -9,6 +9,7 @@ RAW_IDS=raw_ids.$$
 BAD_LENGTHS=bad_lengths.$$
 DUPS_REMOVED=dups_removed.$$
 TEMP=temp.$$
+WITH_RESERVED=with_reserved.$$
 TZ_LONG_IDS=tz_long_ids.$$
 CHR_LONG_IDS=chr_long_ids.$$
 TZ_REGIONS=tz_regions.$$
@@ -35,15 +36,22 @@ fi
 
 # make sure there are no duplicates
 
-sort -u < $RAW_IDS > $DUPS_REMOVED
-diff $RAW_IDS $DUPS_REMOVED
+cat $RAW_IDS > $WITH_RESERVED
+# check for IDs reserved but not used
+for RESERVED_ID in ZULU TAI UT0 UT1 UT2 TT GPS
+do
+  echo $RESERVED_ID >> $WITH_RESERVED
+done
+sort < $WITH_RESERVED > $TEMP
+sort -u < $TEMP > $DUPS_REMOVED
+diff $TEMP $DUPS_REMOVED
 if [ $? -ne 0 ]
 then
   echo "FAILED - found a duplicate short ID"
   exit 1
 else
   echo "No duplicate short IDs found"
-  rm $RAW_IDS $DUPS_REMOVED
+  rm $RAW_IDS $DUPS_REMOVED $TEMP $WITH_RESERVED
 fi
 
 # make sure there are no mismatched long IDs

@@ -35,6 +35,8 @@
 #     not for mere spelling variants).
 #   - Avoid re-inventing wheels by using existing codes wherever possible,
 #     specifically internationally accepted region and airport codes.
+#   - Respect and preserve the intent of each data element's original
+#     author, by being careful not to make unwarranted assumptions.
 #
 # The short ID is chosen as the first (and thus shortest) applicable item from:
 # - ISO-8601 format (i.e. "Z").
@@ -50,18 +52,34 @@
 #
 # Edge cases and exceptions:
 #
+# Busingen - It's too small to have room for a runway, so we use "BUSI".
 # Center - There are no runways in Oliver County ND, so we use "CENT".
+# Galapagos - We use SEGS (ICAO) instead of GPS (IATA) to avoid conflict
+#             with reserved "GPS" for time scale.
+# GMT - We compress "Etc/GMT" to "G".
+# Palestine - It has only closed/abandoned airports, so we use those codes.
 # Rainy River - The airport has no IATA or ICAO code, so we use the
 #               Transport Canada Location Identifier.
-# Busingen - It's too small to have room for a runway, so we use "BUSI".
-# Palestine - It has only closed/abandoned airports, so we use those codes.
+# Trinidad - We use IATA "POS" instead of region "TT" to avoid conflict
+#            with reserved "TT" for time scale.
 # Ulan Batur - The new airport is almost done, so we use its code.
-# Vietnam - In modern usage there is only one time zone, so we use "VN".
-# Sometimes we get lucky - The IATA codes UTC, UCT, and GMT are assigned to
-#   airports in areas that already have other short IDs, and the ICAO
-#   code "ZULU" isn't assigned, so there are no conflicts with existing IDs.
-#   Also "BU**" and "CE**" are unassigned by ICAO.
-# GMT - We compress "Etc/GMT" to "G".
+# Universal - Universal time is NOT the same as UTC, but we follow tzdata
+#             in supporting the deprecated pretense that it is.
+# Vietnam - In modern usage only one time zone is used, so we use "VN".
+#
+# Reserved IDs:
+#
+# We reserve the following IDs that look like region or airport codes, to
+# avoid conflict or confusion with actual or likely uses to represent things
+# other than regions or airports:
+#   - UTC, UCT, GMT, ZULU
+#   - TAI, UT0, UT1, UT2, TT, GPS
+#   - BUSI, CENT
+#   - CET, CST6, EET, EST, EST5, HST, MET, MST, MST7, PST8, WET
+# These codes are either:
+#   (a) not assigned to any region or airport, or
+#   (b) assigned to an airport that we don't use to represent a time zone, or
+#   (c) the airport use has been tweaked to avoid conflict.
 #
 # File format:
 #
@@ -85,7 +103,7 @@
 #   +00:00 --> "Z"  (an offset of zero from UTC is just UTC)
 #   +05:45 --> "+545"  (e.g. Nepal)
 #   -11:00 --> "-B"  (e.g. Niue) (hexadecimal, to keep it to 4 characters max)
-# Note that "-00" is reserved to indicate an undefined time zone.
+# Note that "-00" is already reserved to indicate an undefined time zone.
 #
 AD,AD,Europe/Andorra
 AE,AE,Asia/Dubai
@@ -141,7 +159,7 @@ BB,BB,America/Barbados
 BD,BD,Asia/Dhaka,Asia/Dacca
 BE,BE,Europe/Brussels
 BF,BF,Africa/Ouagadougou
-BG,BG,Europe/Sofia,EET
+BG,BG,Europe/Sofia
 BH,BH,Asia/Bahrain
 BI,BI,Africa/Bujumbura
 BJ,BJ,Africa/Porto-Novo
@@ -232,7 +250,7 @@ DM,DM,America/Dominica
 DO,DO,America/Santo_Domingo
 DZ,DZ,Africa/Algiers
 EC,EC,America/Guayaquil
-EC,GPS,Pacific/Galapagos
+EC,SEGS,Pacific/Galapagos
 EE,EE,Europe/Tallinn
 EG,EG,Africa/Cairo,Egypt
 EH,EH,Africa/El_Aaiun
@@ -248,7 +266,7 @@ FM,TKK,Pacific/Chuuk,Pacific/Yap,Pacific/Truk
 FM,KSA,Pacific/Kosrae
 FM,PNI,Pacific/Pohnpei,Pacific/Ponape
 FO,FO,Atlantic/Faroe,Atlantic/Faeroe
-FR,FR,Europe/Paris,CET,MET
+FR,FR,Europe/Paris
 GA,GA,Africa/Libreville
 GB,BFS,Europe/Belfast
 GB,GB,Europe/London,GB
@@ -349,7 +367,7 @@ MU,MU,Indian/Mauritius
 MV,MV,Indian/Maldives
 MW,MW,Africa/Blantyre
 MX,PVR,America/Bahia_Banderas
-MX,CUN,America/Cancun,EST
+MX,CUN,America/Cancun
 MX,CUU,America/Chihuahua
 MX,HMO,America/Hermosillo
 MX,MAM,America/Matamoros
@@ -393,7 +411,7 @@ PS,GZA,Asia/Gaza
 PS,JRS,Asia/Hebron
 PT,PDL,Atlantic/Azores
 PT,FNC,Atlantic/Madeira
-PT,PT,Europe/Lisbon,Portugal,WET
+PT,PT,Europe/Lisbon,Portugal
 PW,PW,Pacific/Palau
 PY,PY,America/Asuncion
 QA,QA,Asia/Qatar
@@ -461,7 +479,7 @@ TM,TM,Asia/Ashgabat,Asia/Ashkhabad
 TN,TN,Africa/Tunis
 TO,TO,Pacific/Tongatapu
 TR,TR,Europe/Istanbul,Asia/Istanbul,Turkey
-TT,TT,America/Port_of_Spain
+TT,POS,America/Port_of_Spain
 TV,TV,Pacific/Funafuti
 TW,TW,Asia/Taipei,ROC
 TZ,TZ,Africa/Dar_es_Salaam
@@ -475,8 +493,8 @@ UM,AWK,Pacific/Wake
 US,ADK,America/Adak,US/Aleutian,America/Atka
 US,ANC,America/Anchorage,US/Alaska
 US,BOI,America/Boise
-US,CHI,America/Chicago,US/Central,CST6CDT
-US,DEN,America/Denver,US/Mountain,MST7MDT
+US,CHI,America/Chicago,US/Central
+US,DEN,America/Denver,US/Mountain
 US,DTW,America/Detroit,US/Michigan
 US,IND,America/Indiana/Indianapolis,US/East-Indiana,America/Indianapolis,America/Fort_Wayne
 US,KOXI,America/Indiana/Knox,America/Knox_IN,US/Indiana-Starke
@@ -489,19 +507,19 @@ US,KRWN,America/Indiana/Winamac
 US,JNU,America/Juneau
 US,SDF,America/Kentucky/Louisville,America/Louisville
 US,KEKQ,America/Kentucky/Monticello
-US,LAX,America/Los_Angeles,US/Pacific,PST8PDT,US/Pacific-New
+US,LAX,America/Los_Angeles,US/Pacific,US/Pacific-New
 US,MNM,America/Menominee
 US,PAMM,America/Metlakatla
-US,NYC,America/New_York,US/Eastern,EST5EDT
+US,NYC,America/New_York,US/Eastern
 US,OME,America/Nome
 US,KHZE,America/North_Dakota/Beulah
 US,CENT,America/North_Dakota/Center
 US,KY19,America/North_Dakota/New_Salem
-US,PHX,America/Phoenix,US/Arizona,MST
+US,PHX,America/Phoenix,US/Arizona
 US,K5V5,America/Shiprock,Navajo
 US,SIT,America/Sitka
 US,YAK,America/Yakutat
-US,HNL,Pacific/Honolulu,US/Hawaii,HST
+US,HNL,Pacific/Honolulu,US/Hawaii
 US,JON,Pacific/Johnston
 UY,UY,America/Montevideo
 UZ,SKD,Asia/Samarkand
@@ -550,3 +568,14 @@ ZW,ZW,Africa/Harare
 ,G+11,Etc/GMT+11
 ,G+12,Etc/GMT+12
 ,-00,Factory
+,CET,CET
+,CST6,CST6CDT
+,EET,EET
+,EST,EST
+,EST5,EST5EDT
+,HST,HST
+,MET,MET
+,MST,MST
+,MST7,MST7MDT
+,PST8,PST8PDT
+,WET,WET
