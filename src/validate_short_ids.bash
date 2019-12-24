@@ -71,14 +71,14 @@ grep -v "^#" tzdata*/zone.tab | tr '	' ',' | cut -d',' -f1,3 > $TEMP
 # Fudge some backzone stuff (does not affect user API, but makes it
 # a little bit easier to maintain $MASTER).
 cat <<! >>$TEMP
-CA,America/Montreal
-US,America/Shiprock
 AQ,Antarctica/South_Pole
 CA,America/Coral_Harbour
+CA,America/Montreal
 GB,Europe/Belfast
 MD,Europe/Tiraspol
 SJ,Atlantic/Jan_Mayen
 US,Pacific/Johnston
+US,America/Shiprock
 VN,Asia/Hanoi
 !
 sort < $TEMP > $TZ_REGIONS

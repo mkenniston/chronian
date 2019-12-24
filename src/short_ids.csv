@@ -1,24 +1,91 @@
-# Field 1:  ISO-3166 2-character region code (if applicable)
-# Field 2:  abbreviation
-# Field 3:  primary IANA-assigned zone name
-# Fields 4,...:  secondary IANA-assigned zone name(s)
+# MIT License
 #
-# The abbreviation is chosen as the first applicable item from:
-# - ISO-8601 format ("Z" or "+/-##:##)
-# - ISO-3166 2-character region code (if it corresponds to the zone area)
-# - IATA-assigned city code
-# - IATA-assigned airport code
-# - ICAO-assigned airport code
-# - nationally-assigned airport code, including pseudo-ICAO codes
-# giving preference to nearby/major/commercial/international airports
+# Copyright (c) 2019 Michael S. Kenniston
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# ========================
+#
+# This file provides a well-defined "short ID" for each of the IANA
+# standard time zone names.  It is intended to be used together with
+# the standard tzdata files or other software which uses those files.
+# Its only purpose is to allow compact storage of time zone names
+# like "America/Indiana/Indianapolis".
+#
+# The goals are:
+#   - Keep the short IDs short, i.e. no more than 4 ascii characters.
+#   - Keep them sufficiently readable to help a human who is debugging code.
+#   - Provide a unique code for each semantically different time zone (but
+#     not for mere spelling variants).
+#   - Avoid re-inventing wheels by using existing codes wherever possible,
+#     specifically internationally accepted region and airport codes.
+#
+# The short ID is chosen as the first (and thus shortest) applicable item from:
+# - ISO-8601 format (i.e. "Z").
+# - ISO-3166 2-character region code, if such a region substantially
+#     corresponds to the time zone area, e.g. covers 95%+ of the population
+#     and area.
+# - IATA-assigned 3-character city code, if one exists.
+# - IATA-assigned 3-character airport code, if one exists.
+# - ICAO-assigned 4-character airport code, if one exists.
+# - Nationally-assigned 4-character airport code, including pseudo-ICAO codes.
+# Give preference to nearby/major/commercial/international airports,
+# always choosing only airports that are within the time zone.
 #
 # Edge cases and exceptions:
 #
-# Center - no runways in Oliver County, so use CENT
-# Rainy River - the airport has no IATA or ICAO code, so use Canadian code
-# Busingen - too small to have any airport of any kind, so use BUSI
-# Palestine - use closed/abandoned airports
-# Ulan Batur - use an airport still under construction
+# Center - There are no runways in Oliver County ND, so we use "CENT".
+# Rainy River - The airport has no IATA or ICAO code, so we use the
+#               Transport Canada Location Identifier.
+# Busingen - It's too small to have room for a runway, so we use "BUSI".
+# Palestine - It has only closed/abandoned airports, so we use those codes.
+# Ulan Batur - The new airport is almost done, so we use its code.
+# Vietnam - In modern usage there is only one time zone, so we use "VN".
+# Sometimes we get lucky - The IATA codes UTC, UCT, and GMT are assigned to
+#   airports in areas that already have other short IDs, and the ICAO
+#   code "ZULU" isn't assigned, so there are no conflicts with existing IDs.
+#   Also "BU**" and "CE**" are unassigned by ICAO.
+# GMT - We compress "Etc/GMT" to "G".
+#
+# File format:
+#
+# Field 1:  ISO 3166-1 alpha-2 region code (if applicable)
+# Field 2:  short ID
+# Field 3:  primary IANA-assigned time zone name
+# Fields 4,...:  optional secondary IANA-assigned time zone name(s) which
+#                share the short ID
+#
+# Optional extension to the IANA time zones (e.g. to handle email timestamps):
+#
+# Datetimes read in ISO-8601 offset-format, where no location is given
+# or can be inferred, can be coded as "+HDD" or "-HDD" where:
+#   - "H" is the hour in hexadecimal
+#   - "DD" is the minutes in decimal
+#   - trailing zeros are omitted
+# These short IDs are defined and can be parsed, and they will not conflict
+# with any entries in this file, but they are computed as needed so they do
+# not need explicit entries of their own.
+# E.g.:
+#   +00:00 --> "Z"  (an offset of zero from UTC is just UTC)
+#   +05:45 --> "+545"  (e.g. Nepal)
+#   -11:00 --> "-B"  (e.g. Niue) (hexadecimal, to keep it to 4 characters max)
+# Note that "-00" is reserved to indicate an undefined time zone.
 #
 AD,AD,Europe/Andorra
 AE,AE,Asia/Dubai
@@ -53,6 +120,7 @@ AR,TUC,America/Argentina/Tucuman
 AR,USH,America/Argentina/Ushuaia
 AS,AS,Pacific/Pago_Pago,Pacific/Samoa,US/Samoa
 AT,AT,Europe/Vienna
+AU,YMMQ,Antarctica/Macquarie
 AU,ADL,Australia/Adelaide,Australia/South
 AU,BNE,Australia/Brisbane,Australia/Queensland
 AU,BHQ,Australia/Broken_Hill,Australia/Yancowinna
@@ -65,7 +133,6 @@ AU,LDH,Australia/Lord_Howe,Australia/LHI
 AU,MEL,Australia/Melbourne,Australia/Victoria
 AU,PER,Australia/Perth,Australia/West
 AU,SYD,Australia/Sydney,Australia/ACT,Australia/Canberra,Australia/NSW
-AU,YMMQ,Antarctica/Macquarie
 AW,AW,America/Aruba
 AX,AX,Europe/Mariehamn
 AZ,AZ,Asia/Baku
@@ -178,13 +245,13 @@ FI,FI,Europe/Helsinki
 FJ,FJ,Pacific/Fiji
 FK,FK,Atlantic/Stanley
 FM,TKK,Pacific/Chuuk,Pacific/Yap,Pacific/Truk
-FM,PNI,Pacific/Pohnpei,Pacific/Ponape
 FM,KSA,Pacific/Kosrae
+FM,PNI,Pacific/Pohnpei,Pacific/Ponape
 FO,FO,Atlantic/Faroe,Atlantic/Faeroe
 FR,FR,Europe/Paris,CET,MET
 GA,GA,Africa/Libreville
-GB,GB,Europe/London,GB
 GB,BFS,Europe/Belfast
+GB,GB,Europe/London,GB
 GD,GD,America/Grenada
 GE,GE,Asia/Tbilisi
 GF,GF,America/Cayenne
@@ -192,8 +259,8 @@ GG,GG,Europe/Guernsey
 GH,GH,Africa/Accra
 GI,GI,Europe/Gibraltar
 GL,BGDH,America/Danmarkshavn
-GL,CNP,America/Scoresbysund
 GL,GL,America/Godthab
+GL,CNP,America/Scoresbysund
 GL,THU,America/Thule
 GM,GM,Africa/Banjul
 GN,GN,Africa/Conakry
@@ -259,8 +326,8 @@ LV,LV,Europe/Riga
 LY,LY,Africa/Tripoli,Libya
 MA,MA,Africa/Casablanca
 MC,MC,Europe/Monaco
-MD,LUTR,Europe/Tiraspol
 MD,MD,Europe/Chisinau
+MD,LUTR,Europe/Tiraspol
 ME,ME,Europe/Podgorica
 MF,MF,America/Marigot
 MG,MG,Indian/Antananarivo
@@ -444,8 +511,8 @@ VC,VC,America/St_Vincent
 VE,VE,America/Caracas
 VG,VG,America/Tortola
 VI,VI,America/St_Thomas,America/Virgin
-VN,VN,Asia/Ho_Chi_Minh,Asia/Saigon
 VN,HAN,Asia/Hanoi
+VN,VN,Asia/Ho_Chi_Minh,Asia/Saigon
 VU,VU,Pacific/Efate
 WF,WF,Pacific/Wallis
 WS,WS,Pacific/Apia
@@ -454,9 +521,8 @@ YT,YT,Indian/Mayotte
 ZA,ZA,Africa/Johannesburg
 ZM,ZM,Africa/Lusaka
 ZW,ZW,Africa/Harare
-,GMT,Etc/GMT,GMT+0,GMT-0,GMT0,Greenwich,GMT,Etc/GMT-0,Etc/GMT+0,Etc/GMT0
-,Z,UTC,Etc/UTC,Etc/UCT,UCT,Universal,Zulu,Etc/Universal,Etc/Zulu,Etc/Greenwich
-,-00,Factory
+,Z,Etc/UTC,UTC,Etc/UCT,UCT,Etc/Zulu,Zulu,Etc/Universal,Universal
+,G,Etc/GMT,GMT,Etc/GMT+0,GMT+0,Etc/GMT-0,GMT-0,Etc/GMT0,GMT0,Etc/Greenwich,Greenwich
 ,G-14,Etc/GMT-14
 ,G-13,Etc/GMT-13
 ,G-12,Etc/GMT-12
@@ -483,3 +549,4 @@ ZW,ZW,Africa/Harare
 ,G+10,Etc/GMT+10
 ,G+11,Etc/GMT+11
 ,G+12,Etc/GMT+12
+,-00,Factory
