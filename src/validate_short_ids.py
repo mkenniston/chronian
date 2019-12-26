@@ -24,13 +24,16 @@ def read_csv_file(path):
         primary_names[short_id] = fields[2]
         regions[short_id] = fields[0]
         for name in fields[2:]:
+            if name in short_ids:
+                print("FAILED -- name '%s' is duplicated" % name)
+                exit(1)
             short_ids[name] = short_id
     fh.close()
     for id in ['ZULU', 'TAI', 'UT0', 'UT1', 'UT2', 'TT', 'GPS']:
         if id in primary_names:
             print("FAILED -- short ID '%s' is reserved" % id)
             exit(1)
-    print("No duplicate short IDs found")
+    print("No duplicate short IDs or long names found")
     return primary_names, short_ids, regions
 
 
@@ -118,13 +121,23 @@ def validate_2char_ids_match_regions(regions):
     print("All 2-char short IDs match their own region code")
 
 
+def validate_short_matches_long(primary_names, short_ids):
+    for name in short_ids.keys():  # look at every long name
+        if name in primary_names.keys():  # is it also a short name?
+            if name != short_ids[name]:  # does it match?
+                print("FAILED -- name '%s' has short ID '%s'" %
+                      (name, short_ids[name]))
+    print("No short IDs conflict with long names")
+
+
 def main():
     primary_names, short_ids, regions = read_csv_file("short_ids.csv")
     validate_short_id_format(primary_names)
     validate_long_names_match(short_ids)
     validate_region_codes_match(primary_names, short_ids, regions)
     validate_2char_ids_match_regions(regions)
-    print("%d short IDs validated successfully" % (len(primary_names)))
+    validate_short_matches_long(primary_names, short_ids)
+    print("%d entries validated successfully" % (len(primary_names)))
     exit(0)
 
 main()
