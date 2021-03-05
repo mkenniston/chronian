@@ -30,7 +30,7 @@ By convention **chronian** hides most raw constructors for date-time objects, in
 
 ## Static vs. Dynamic Type-Checking
 
-This is an interesting question for software that is intended to be ported to many languages with radically different ideas about it, for example Python/Ruby vs. Java/C++.  The way **chronian** handles this is to design the syntax and semantics so that static type-checking will work smoothly when needed, but terse source code will still be natural in languages that encourage that.  Hiding constructors and enabling call-chaining helps a lot here, since the actual types often need not be explicitly mentioned.
+This is an interesting question for software that is intended to be ported to many languages with radically different ideas about type-checking, for example Python/Ruby vs. Java/C++.  The way **chronian** handles this is to design the syntax and semantics so that static type-checking will work smoothly when needed, but terse source code will still be natural in languages that encourage that.  Hiding constructors and enabling call-chaining helps a lot here, since the actual types often need not be explicitly mentioned.
 
 Either way, we run the same unit tests on everything in all supported languages, so the whole testing argument really doesn't apply here.
 
@@ -148,7 +148,7 @@ independence = pacific.point(clock.read(pacific).year(), 7, 4)
 
 Choose names that are (1) clear, and (2) short.
 
-Although the Chronian model uses the terms ChronLine and ChronPoint, identifiers within the **chronian** library shorten those to "line" and "point".
+Although the Chronian model uses the terms ChronLine and ChronPoint to avoid any possible confusion, inside the **chronian** library itself there is no ambiguity so we use the shorter "line" and "point".
 
 Converting a TypeA object to a TypeB object using instance methods:
 
@@ -173,7 +173,7 @@ In most cases the "to" methods simply call the "from" factory methods, but both 
 
 Leap seconds are inconvenient, but they're real.  Deal with it, and write code that gives right answers.  It drives me crazy to use a library which cannot do a simple UTC calculation correctly.  (Both Unix/Linux and Windows do this wrong -- even the very definition of time_t is wrong, i.e. it claims to be "seconds past UTC epoch" but is actually "non-leap seconds past UTC epoch".)
 
-On the other hand, the habit of ignoring leap seconds is embedded in a zillion systems and ingrained in a zillion programmers, so for compatibility **chronian** reluctantly makes "ignore leap seconds" the default.  Ignoring leap seconds also makes the initial prototype *much* easier to build -- but the architecture is there to support leap seconds seamlessly later.
+On the other hand, the habit of ignoring leap seconds is embedded in a bezillion software systems, databases, and programmers' heads, so for compatibility **chronian** reluctantly makes "ignore leap seconds" the default.  Ignoring leap seconds also makes the initial prototype *much* easier to build -- but the architecture is there to support leap seconds seamlessly later.
 
 ## Simple synax and semantics
 
@@ -185,7 +185,7 @@ This seems like a no-brainer, but far too many existing temporal libraries (not 
 
 ## Clocks Distinct from Date-Times
 
-Most existing temporal libraries have something like "MyLib.now()" to read the current time.  No, no, no!  A clock is not a data type or a data object, it's an interface to a piece of hardware that *returns* a data object.  Furthermore, if you make it easy to inject or mock a clock for your automated unit tests, your life will get ever so much easier -- and your code will more clearly state what it's actually doing.  Clocks in **chronian** remain distinct from all the data types, although they are *aware* of the data types.
+Most existing temporal libraries have something like "MyLib.now()" to read the current time.  No, no, no!  A clock is not a data type or a data object; it's an interface to a piece of hardware that *returns* a data object.  Furthermore, if you make it easy to inject or mock a clock for your automated unit tests, your life will get ever so much easier -- and your code will more clearly state what it's actually doing.  Clocks in **chronian** remain distinct from all the data types, although they are *aware* of the data types.
 
 This is also one specific case of **chronian** eschewing class methods.
 
@@ -193,21 +193,23 @@ This is also one specific case of **chronian** eschewing class methods.
 
 I struggled with this one.  The basic problem is that in order for a time-point to be properly serialized for persistence, it has to include a time zone.  The IANA time zone names are widely accepted as *the* standard so we have to be compatible with that -- but the official names are so long that most programmers just couldn't stomach storing such a large string with every single time point.  In addition, I personally couldn't stomach making up a special, incompatible set of codes just for my own library (and still don't understand why RoR did exactly that).  After a bit of searching, I found a compromise by using another widely-accepted international standard: the airport codes assigned by IATA (or in a few cases, ICAO).  Since most time zones are named after a large city (or a whole country), there is an airport associated with nearly every one, and people in the area are already familiar with the codes.  No literate US resident would find it difficult to guess where LAX, DEN, CHI, and NYC are, and nobody in France or the U.K. would have any trouble deciphering LON or PAR.
 
-The ICAO list is more inclusive so it would seem simpler to just use that for all the codes, but we prefer the IATA code when there is one because (1) The IATA codes are shorter, and (2) the IATA codes are better known (they are the ones on your luggage tags).
+The ICAO list is more inclusive so it would seem simpler to just use that for all the codes, but we prefer the IATA code when there is one because (1) The IATA codes are shorter, and (2) the IATA codes are better known (they are usually the codes on your luggage tags).
 
 Of course the actual translation is all just table look-up, but if you're curious the algorithm for assigning these codes is:
 
 0. When a number of IANA names are synonyms for semantically equivalent time zones, they can all map to the same short code.  For example, "UTC", "GMT", "GMT+0", "Zulu", and "Etc/Zulu" all mean the same thing, so they can all map to "Z".
-However, just being linked does not make two zones equivalent, e.g. even when a country currently uses one zone it still reserves the right to change in the future, so we count (and code) that country's zone as distinct.
-1. If the zone is defined as an offset, code it as "+/-HH" (e.g. "-07").  If the offset is fractional, add "1", "3", or "4" at the end to represent :15, :30, and :45.
-2. Extract the name of the city (or region, or country) from the IANA id.  If the name isn't that format, skip ahead.
-3. If IATA defines a code for the whole city or metro area, use that (e.g. NYC).
-4. Find the largest airport in the city/region, or the nearest airport if the city has none of its own.
-5. If IATA defines a 3-letter code for that airport, use it (e.g. LAX).
-6. If ICAO defines a 4-letter code for that airport, use it.
-7. If you get here, go back to step 4 and choose the next largest airport in the time zone.
-8. If there are no coded airports in the time zone, use "*CCC" where CCC is the first 3 consonants of the city/region name.
-9. If you have any duplicates, change one of them.
+However, just being linked does not make two zones equivalent, e.g. even when a country currently shares a zone with other countries it still reserves the right to change in the future, so we count (and code) that country's zone as distinct.
+1. If the zone is UTC (or equivalent), use "Z".
+2. If the zone is a whole country, use the 2-letter ISO-3166 code for the country.
+3. If the zone is defined as an offset, code it as "+/-HH" (e.g. "-07").  If the offset is fractional, add "1", "3", or "4" at the end to represent :15, :30, and :45.
+4. Extract the name of the city (or region, or country) from the IANA id.
+5. If IATA defines a code for the whole city or metro area, use that (e.g. NYC).
+6. Find the largest airport in the city/region, or the nearest airport if the city has none of its own.
+7. If IATA defines a 3-letter code for that airport, use it (e.g. LAX).
+8. If ICAO defines a 4-letter code for that airport, use it.
+9. If you get here, go back to step 4 and choose the next largest airport in the time zone.
+10. If there are no coded airports in the time zone, use "*CCC" where CCC is the first 3 consonants of the city/region name.
+11. If you have any duplicates, change one of them.
 
 ## Multiple Comparison Functions
 
@@ -227,7 +229,7 @@ A second reason, less compelling but still important, is that automated testing 
 
 ## Namespacing
 
-In large systems namespace pollution can be serious, so **chronian** limits itself to insering *one* name into your namespace.  Everything else is derived off of that.  If you need something guaranteed globally unique, I registered "chronian.com" in part so you can use com.Chronian as the name.
+In large systems namespace pollution can be serious, so **chronian** limits itself to insering *one* name into your namespace.  Everything else is derived off of that.  If you need something guaranteed globally unique, I registered "chronian.com" in part so you can safely use com.Chronian as the name.
 
 Although not required by the model, for simplicity **chronian** uses the convention that classes have only instance methods, never class methods.  This is easy to remember, and it can make testing simpler.  Another convention is that constants are defined as class values, not instance values.
 
@@ -245,7 +247,7 @@ One of the most common places to read/write dates-and-times are databases, so **
 
 ## Native Interoperability
 
-If this library is to be useful it obviously must be easy to convert between **chronian** objects and native objects, so we include a full complement of conversion methods.  This is not just for convenience; to ensure that conversions (which often have hidden subtleties) are done correctly they really should be included in the library.  Indeed, it would violate the spirit of **chronian** to require the user to ever manipulate an internal representation of a date-time object.
+If this library is to be useful it obviously must be easy to convert between **chronian** objects and native objects, so we include a full complement of conversion methods.  This is not just for convenience; to ensure that conversions (which often have hidden subtleties) are done correctly they really should be included in the library.  Indeed, it would violate the spirit of the **chronian** library to require the user to ever manipulate an internal representation of *any* date-time object, regardless of whether it is a native object or a **chronian** object.
 
 ## Open-Source
 
@@ -253,4 +255,4 @@ No one should own "time", and I'm not looking to make money off this.  (Fame mig
 
 
 ---
-Copyright (c) 2016-2017 Michael S. Kenniston
+Copyright (c) 2016-2021 Michael S. Kenniston
