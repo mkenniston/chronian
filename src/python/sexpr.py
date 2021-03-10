@@ -6,11 +6,25 @@ Chronian micro-lisp code to store s-exprs from input.
 """
 
 from symbol_table import SymbolTable
+from util import fatal_error
 
 symbol_table = SymbolTable()
 
 
-class SExpr(object):
+def eval(val):
+  """ Eval any value, even if it might be nil.
+  """
+  if val is None:
+    fatal_error("cannot eval nil")
+  return val.eval()
+
+
+class LispValue(object):
+  """ Any kind of lisp value.  Used only as a parent class.
+  """
+
+
+class SExpr(LispValue):
   """ Holds any S-expression.  Used only as a parent class.
   """
   def __init__(self):
@@ -18,6 +32,9 @@ class SExpr(object):
 
   def __repr__(self):
     return("<SExpr of unknown type>")
+
+  def eval(self):
+    fatal_error("eval not implemented for %s" % str(type(self)))
 
 
 class List(SExpr):
@@ -37,6 +54,9 @@ class List(SExpr):
     result = "(" + " ".join(result) + ")"
     return result
 
+  def eval(self):
+    return "TBA"
+
 
 class Atom(SExpr):
   """ Atom superclass, used only as parent for subclasses.
@@ -54,6 +74,9 @@ class Symbol(Atom):
   def __repr__(self):
     return symbol_table.name(self.symbol_number)
 
+  def eval(self):
+    return "look it up in the env stack"
+
 
 class String(Atom):
   """ An atom that holds a string.
@@ -63,6 +86,9 @@ class String(Atom):
 
   def __repr__(self):
     return '"' + self.value + '"'  # fix this later to \-escape as needed
+
+  def eval(self):
+    return self
 
 
 class Number(Atom):
@@ -81,6 +107,9 @@ class Integer(Number):
   def __repr__(self):
     return str(self.value)
 
+  def eval(self):
+    return self
+
 
 class Float(Number):
   """ An atom that holds a floating point number.
@@ -91,6 +120,9 @@ class Float(Number):
   def __repr__(self):
     return str(self.value)
 
+  def eval(self):
+    return self
+
 
 class Boolean(Atom):
   """ An atom that holds a boolean value.
@@ -100,6 +132,9 @@ class Boolean(Atom):
 
   def __repr__(self):
     return "#t" if self.value else "#f"
+
+  def eval(self):
+    return self
 
 
 class Quote(Atom):
@@ -133,7 +168,7 @@ class RightParen(Atom):
 
 
 class EOFToken(Atom):
-  """ A special atom that indicates EOF on input.
+  """ A special atom that indicates EOF on input.  Used only for lexical scan.
   """
   def __init__(self):
     pass
