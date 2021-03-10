@@ -1,5 +1,6 @@
 "use strict"
 
+var sexpr = require("./sexpr")
 var util = require ("./util")
 
 const LEX_INT = "int"
@@ -11,17 +12,17 @@ const LEX_LEFT_PAREN = "left_paren"
 const LEX_RIGHT_PAREN = "right_paren"
 const LEX_QUOTE = "quote"
 
-const WHITE_SPACE_RE = /^[ \f\n\r\t\v]$/
-const INTEGER_RE = /^[+-]?\d+$/
-const FLOAT_RE = /[+-]?(\d+[.]?\d*|[.]\\d+)(e[+-]\d+)?$/
-const BREAK_RE = /^[ \f\n\r\t\v()';]$/
-
 function Lexeme(type, value) {
   return {'type': type, 'value': value}
 }
 
 class Reader {
   constructor() {
+    this.WHITE_SPACE_RE = /^[ \f\n\r\t\v]$/
+    this.INTEGER_RE = /^[+-]?\d+$/
+    this.FLOAT_RE = /[+-]?(\d+[.]?\d*|[.]\\d+)(e[+-]\d+)?$/
+    this.BREAK_RE = /^[ \f\n\r\t\v()';]$/
+
     this.stdinAll = require("fs").readFileSync("/dev/stdin").toString().split("\n")
     this.stdinAll.reverse()
     this.line_buffer = []
@@ -80,7 +81,7 @@ class Reader {
   scan_word() {
     var s = []
     var c = this.read_char()
-    while (! BREAK_RE.test(c)) {
+    while (! this.BREAK_RE.test(c)) {
       s.push(c)
       c = this.read_char(c)
     }
@@ -88,15 +89,15 @@ class Reader {
     s = s.join("")
     if (s == "#t") { return Lexeme(LEX_BOOLEAN, true) }
     else if (s == "#f") { return Lexeme(LEX_BOOLEAN, false) }
-    else if (INTEGER_RE.test(s)) { return Lexeme(LEX_INT, parseInt(s)) }
-    else if (FLOAT_RE.test(s)) { return Lexeme(LEX_FLOAT, parseFloat(s)) }
+    else if (this.INTEGER_RE.test(s)) { return Lexeme(LEX_INT, parseInt(s)) }
+    else if (this.FLOAT_RE.test(s)) { return Lexeme(LEX_FLOAT, parseFloat(s)) }
     else { return Lexeme(LEX_SYMBOL, s) }
   }
 
   read_lexeme() {
     while (true) {
       var c = this.read_char()
-      while (WHITE_SPACE_RE.test(c)) {
+      while (this.WHITE_SPACE_RE.test(c)) {
         c = this.read_char()
       }
       if (! c) {
