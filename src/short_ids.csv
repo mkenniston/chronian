@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2019 Michael S. Kenniston
+# Copyright (c) 2020 Michael S. Kenniston
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -104,6 +104,10 @@
 #   +05:45 --> "+545"  (e.g. Nepal)
 #   -11:00 --> "-B"  (e.g. Niue) (hexadecimal, to keep it to 4 characters max)
 # Note that "-00" is already reserved to indicate an undefined time zone.
+#
+# We do assign short codes to time zones that are deprecated.  Although no
+# new data should be generated for these zones, we need to provide a way to
+# represent old legacy data.
 #
 AD,AD,Europe/Andorra
 AE,AE,Asia/Dubai
