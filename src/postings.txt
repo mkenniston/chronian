@@ -1,0 +1,329 @@
+== INTRO ==
+
+Introduction to the group.
+
+Welcome to the "chronian" group.
+
+The purpose of this group is to discuss those specific aspects of
+computer date-and-time handling which are related to open-source
+software being developed by the group owner (Michael Kenniston).
+It is always a good idea to get multiple eyeballs and perspectives on
+any project before releasing it, so this group provides a place to
+do that.  Thank you for your interest in particpating.
+
+The overall Chronian project may someday include a lot of interesting
+work, but right now it is starting with something quite modest:  the
+"short IDs" sub-project.  This is simply a single data file that defines
+short, unique ID codes for each time zone defined by the IANA tzdb
+files (see https://www.iana.org/time-zones for details).
+
+There are currently only three files in this project:
+  - short_ids.csv -- the actual definitions, with a lot of comments
+        explaining what it is and how it was constructed
+  - validate_short_ids.py -- a basic sanity checker to help find typos
+  - lookup_short_ids.py -- a simple demo program to use the file
+The csv file uses Unix line-end conventions, and the Python code was
+developed on Ubuntu Linux.  You will find all three files posted in
+the "files" section of this group.
+
+As you look at this software, please keep in mind that although I try to
+keep the code solid, this is all *pre-release* and it will probably have
+mistakes.  Considering that the file has 474 entries that were all created
+manually, then no matter how careful and conscientious the author, the
+file is bound to contain a bug or two.
+
+On the other hand, being an unreleased prototype makes it easier to make
+changes, so please don't hold back if you see things that can be improved,
+even if they might require major changes.  The idea is to get early feedback
+to improve the product before release.  This includes such trivial things as
+spelling errors in the comments all the way up to major questions about
+the ways in which the data might (or might not) be used or needed.
+
+If you have an idea, suggestion, question, etc. please go ahead and post
+to the group.  If you have more than one idea, please post each one
+separately to make it easier to follow each thread.  When I first open
+the group I will post a few design questions to get things started, and
+you can take it from there.
+
+The ultimate goal is to decide if a "short IDs" table is worth proposing
+as a contribution to tzdb, and if so then to make sure we have something
+of high quality to submit.
+
+== TOPIC ==
+
+Why would you even bother doing this?
+
+The only real value in short IDs for time zone names is if you intend
+to store or communicate them -- and I mean a *lot* of them, e.g. one for
+every date-time data element.  The IANA/tzdb-defined names that we
+already have are perfectly clear, so the only advantage of a short ID
+is the reduced number of bytes.
+
+Common wisdom is that the best way to handle datetime points is usually
+to convert them to UTC as soon as they enter your system, do all your
+storage/commications/computation with those UTC points, then convert
+them back to local time zones at the last possible moment before displaying
+them to the user.  "Everybody" knows that.  You know that.  I know that.
+Personally, I've been coding that way for years.
+
+Until one day I stumbled on a use case which that method cannot handle.
+Not just a weird one-off piece of data, but an entire class of problems.
+Here is a concrete example:
+    - Person #1 and Person #2 live in time zone "A", which uses DST.
+    - The two persons agree to physically meet in time zone "A" at 10 AM
+      local time on April 17 two years from now at a specific coffee shop.
+    - Person #1 is a Luddite and records the date and time on paper.
+    - Person #2 uses a computer calendar to record the date and time,
+      supplying the appropriate time zone.  The computer converts the
+      time to UTC using the current DST rules for time zone "A", which
+      indicate that DST is not yet in effect on April 17.
+    - A few weeks later, the government of time zone "A" changes the rules
+      to make DST start earlier, so DST will now be in effect on April 17,
+      effective one full year in the future.
+    - On the day of the appointment, Person #2's computer calendar retrieves
+      the recorded UTC time and converts it back to local time using the
+      current DST rules, which means that the result is 11 AM.
+    - Person #1 shows up at 10 AM local time, verifies that the wall-clock
+      at the coffee shop agrees with his cellphone and his written note,
+      waits 45 minutes, then gives up and leaves.
+    - Person #2 shows up at 11 AM local time, verifies that the wall-clock
+      at the coffee shop agrees with his cellphone and his computer
+      calendar entry, waits 45 minutes, then gives up and leaves.
+    - Each thinks the other missed the appointment.  Neither has any
+      easily observable reason to believe otherwise.
+It is easy to construct variations on this theme, but the results will
+be similar.
+
+The crux of the problem is that you cannot reliably convert a future local
+time to UTC now and convert it back to local time later.  You can devise
+complex schemes for fudging and repairing the data, but I have not been
+able to find a good solution which does not involve somehow recording
+the original time zone together with each datetime point.
+
+The only way to convert a future local time "T" to UTC that is guaranteed
+to be correct is to do the conversion using the rules in effect at
+time "T" -- which of course we don't know until time "T" arrives.
+(We can make a guess, even a highly likely guess, but we cannot *know*.)
+Therefore we have to defer the final, authoritative conversion until
+time "T", which means that in the meantime we need to store the time
+zone name so that we know which rules to use later.
+
+If this is true, why don't we see these sorts of failures all the time?
+Probably because we rarely store datetimes that are very far in the future,
+and any DST rule changes are usually announced well in advance.  Thus
+you can quite correctly say that this is a special case, but then most
+of the problems which tzdb is intended to solve are also special
+cases in some sense: "They're in different time zones" or "The rules
+for DST changes are different" or "DST is backwards in the Southern
+Hemisphere" or "Samoa skipped a day" or "That location has a fractional
+offset" or "They only did double-DST once".  This is just another
+special case which needs to be handled.
+
+Next you might ask what the chances are of a DST rule change in a new
+release of tzdb.  The answer is: nearly 100%, since a new version of
+tzdb is only released when something changes, and that something
+is typically the DST rules for some time zone somewhere.  In any given
+release of tzdb, the odds of a rule change in *your* specific time zone
+are low, but the odds of a change in *some* time zone are high.
+
+One unpleasant implication of all this is that you cannot sort a list of
+future times into chronological order -- and it's no use asking your
+database to do it for you.  It's not a matter of algorithms or
+computational complexity; it simply is not possible because the order
+of future times (as specified in various local time zones) is not fully
+defined until that future arrives.  You can certainly do an *approximate*
+sort right now that will *probably* be right, but you cannot be sure until
+the future has become the present.  In fact, you cannot be sure that *any*
+computation involving future local times in multiple time zones is
+correct until those times arrive.  (I will grant that specific exceptions
+to this rule do exist, but here we are looking at the general case.)
+
+These are highly inconvenient results, so please do try to poke holes
+in this analysis.  I would love to be proven wrong.  (OK, so maybe I
+wouldn't really love it, but it would be good for building character.)
+
+However if this analysis is correct, some (and perhaps many) applications
+will need to store datetime data in their original time zones, and the
+best they can do is to provide increasingly accurate approximations as
+time passes by periodically recomputing any conversions or calculations.
+Since this requires storing the time zone names, "short IDs" will be an
+important optimization to avoid a rather large increase in the number
+of bytes of storage needed.
+
+Any thoughts on this?  Does the logic make sense?  Can you find any
+flaws in the reasoning?
+
+== TOPIC ==
+
+Canonical/Alias names vs. Primary/Secondary names
+
+Terminology:  Instead of constantly (and awkwardly) saying "the
+short_ids.csv file", let's just say "Chronian".
+
+The tzdb files define two types of time zone names: canonical and alias.
+Chronian also has two types of names: primary and secondary.  Although
+the actual names are the same in both cases, the classifications are not.
+
+In tzdb an alias (or "link") is a valuable implementation optimization,
+but it carries no semantic meaning.  Consider the example of Africa/Dakar
+(Senegal) being linked to Africa/Abidjan (Côte d'Ivoire).  There is no
+assurance that the two countries will stay in lockstep in the future,
+but right now they do, so we can use a single table to describe the details
+of both time zones.  When we're converting everything to UTC anyway, it
+doesn't matter that the time zones are in different areas or different
+jurisdictions.  Since the original time zone names are not expected to be
+stored with the datetime points, there is no loss of meaning by treating
+them as if they were the same.
+
+Now let's consider the same pair of time zones in a context where we
+are *not* converting everything to UTC and so we *do* expect to store
+the time zone name with each datetime point.  When a user specifies a
+time in Senegal, they want that time to always be interpreted as Senegal
+time, regardless of how Côte d'Ivoire might change their rules in
+the future.  When you are persisting this kind of data, it is important
+to capture and preserve the user's intent.  That means we cannot treat
+Africa/Dakar as a synonym for Africa/Abidjan, and they cannot have the
+same "short ID".
+
+Chronian handles this by defining a short ID and a "primary name" for
+each semantically distinct time zone.  When there is a true synonym for
+the primary name, Chronian includes that as a "secondary name", but such
+a secondary name refers to the *same* time zone.  For example, an
+alternate spelling for a time zone name (e.g. "Faeroe" for "Faroe") is
+considered a secondary name.  Other cases would be "Navajo" for
+"America/Shiprock"; not exactly a spelling variation, but they still
+have the same meaning.  A time zone always has exactly one primary name,
+but it can have zero or more secondary names.
+
+In other words, in tzdb name is an "alias" if it has identical rules,
+but in Chronian a name is a "secondary name" if it has identical
+meaning.  In tzdb Africa/Dakar is an alias, but in Chronian Africa/Dakar
+is a primary name with its own entry in the table.
+
+Of course one could define a "short ID" scheme without any secondary
+names at all, by simply providing a unique short ID for each textually
+distinct IANA time zone name.  This would be slightly simpler, but we
+would lose the additional clarity provided by explicitly showing which
+names are really synonyms.  It would also create a strange zoo of
+multiple IDs. e.g. we'd need 8 distinct short IDs for "UTC", and we'd 
+have to find 3 airports in Starke county Indiana.  It doesn't seem worth it.
+
+Comments?
+
+== TOPIC ==
+
+What effect will all this "cannot convert future datetimes to UTC" and
+"store original time zone names" stuff have on tzdb?
+
+Chronian will have little or no effect on tzdb.  To quote something
+the famous Bard almost said, "The fault, dear Brutus, is not in our
+tzdb, but in ourselves".  The existing implementation of tzdb does
+exactly what it is designed to do, and it does it quite well, and it
+is indispensable.  The same might be said of many of the language-specific
+libraries that are built on top of tzdb.
+
+If we create trouble by prematurely converting data to to UTC when
+we should be keeping it in its original time zone, that's not a flaw
+in tzdb.  It's a mis-use of the tool, just as leaning far out to the
+side of a ladder while holding a circular saw in one hand would be a
+mis-use of those tools.  In both cases the solution is a better
+understanding of how to use the tools correctly.
+
+== TOPIC ==
+
+CSV vs. TAB separated tables
+
+I personally like the readability of comma-separated files, but the
+tzdb convention seems to be to use tab-separated *.tab files.
+
+Should I change short_ids.csv to short_ids.tab using tab-separated fields?
+
+== TOPIC ==
+
+Region codes vs. Airport codes
+
+Because both region codes and airport codes already exist, there are
+theoretically three options:
+(1) Use region codes for everything.  This won't work, because many
+time zones do not correspond to coded regions.
+(2) Use airport codes for everything.  This would work fine and be
+very consistent, but it would result in many time zones having codes
+that are longer and less familiar to users than they need to be.
+(3) Hybrid - use short (2-character) familiar region codes where possible,
+and use airport codes (3- or 4-character) everywhere else.
+
+For this project I chose a hybrid approach to minimize length and use
+more familiar codes for most small countries.
+
+Do folks think that's a resonable trade-off?  I'd be willing to consider
+option #2 if greater consistency is important.
+
+== TOPIC ==
+
+Reserving unused codes
+
+I have reserved codes TAI, UT0, UT1, UT2, TT, and GPS.  My main reason is
+not because we'll ever have time zones for those (although some
+implementations might chose to), but simply to avoid confusion.  For
+example, somebody seeing TAI in the context of "times" would naturally
+read it as "Temps Atomique International" -- even though "TAI" is
+actually the IATA code for an international airport.
+
+Does this seem reasonable?  Should I get rid of this -- or taking
+the opposite approach, should full entries for these codes be included
+in the file?  In either case, is this the right list of codes?  (E.g. I
+left out Ephemeris Time (ET) because it seemed too obscure.  Or maybe TT
+is also too obscure.)
+
+== TOPIC ==
+
+Comments for individual entries
+
+The file includes general high-level comments, plus a few about
+special cases, but it would be possible to add a comment for every entry
+explaining why that particular code was chosen.  Would that be helpful,
+or would it just be overkill and clutter the file with hundreds of
+trivial comments like "XYZ is the nearby international airport"?
+Or should the special-case comments be placed before (or after)
+the specific entries that they explain?
+
+== TOPIC ==
+
+Including a Region code in the table
+
+The file includes the region code, even though that is unlikely to be
+used by tzdb, and in fact it's actually redundant since it can be
+derived from existing tzdb tables.  I included it because it makes
+the file easier to maintain by grouping together entries with the
+same region code.
+
+Is that reasonable, or would it be better to eliminate that column of
+the table?
+
+== TOPIC ==
+
+Number of bits vs. Readability.
+
+The current codes have lengths varying from 1-4 characters long, but we
+could force it down to 2-characters by assigning arbitrary 2-character codes.
+Such codes would be meaningless though, so at that point we might as well
+just assign arbitrary integers and squash it down to 10 bits.
+
+Is the ability of the codes to be read by humans (and represented in
+normal ascii) worth the slight length overhead (and also a potential
+overhead of handling variable-length strings)?  Or would it make sense to
+do both: supply the short ascii/airport codes but also add another column
+to the table for an integer id?  Obviously anybody could do this themselves
+for their own applications, but life is so much more pleasant when
+everybody uses the same codes. :-)
+
+== TOPIC ==
+
+Bare data vs. data-plus-code
+
+When data like this is submitted for inclusion in tzdb, is there an
+expectation that "C" code to handle the table and perhaps implement
+an API to access the data will also be included -- or is just the
+data adequate?
+
+== END ==
