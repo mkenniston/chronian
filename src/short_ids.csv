@@ -24,7 +24,7 @@
 #
 # This file provides a well-defined "short ID" for each of the IANA
 # standard time zone names.  It is intended to be used together with
-# the standard tzdata files or other software which uses those files.
+# the standard tzdb files or other software which uses those files.
 # Its only purpose is to allow compact storage of time zone names
 # like "America/Indiana/Indianapolis".
 #
@@ -63,7 +63,7 @@
 # Trinidad - We use IATA "POS" instead of region "TT" to avoid conflict
 #            with reserved "TT" for time scale.
 # Ulan Batur - The new airport is almost done, so we use its code.
-# Universal - Universal time is NOT the same as UTC, but we follow tzdata
+# Universal - Universal time is NOT the same as UTC, but we follow tzdb
 #             in supporting the deprecated pretense that it is.
 # Vietnam - In modern usage only one time zone is used, so we use "VN".
 #

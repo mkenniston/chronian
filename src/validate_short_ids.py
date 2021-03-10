@@ -63,17 +63,17 @@ def validate_long_names_match(short_ids):
     tz = read_tz_long_names()
     for name in tz:
         if name not in short_ids.keys():
-            print("FAILED -- tzdata name '%s' not found" % name)
+            print("FAILED -- tzdb name '%s' not found" % name)
             exit(1)
     for name in short_ids.keys():
         if name not in tz:
-            print("FAILED -- name '%s' not found in tzdata" % name)
+            print("FAILED -- name '%s' not found in tzdb" % name)
             exit(1)
-    print("All long IDs match tzdata names")
+    print("All long IDs match tzdb names")
 
 
 def validate_region_codes_match(primary_names, short_ids, regions):
-    # Read regions defined in tzdata.
+    # Read regions defined in tzdb.
     tz_regions = {}
     comment_pat = re.compile('^#')
     for line in os.popen("cat tzdata*/zone.tab").read().split('\n'):
@@ -97,17 +97,17 @@ def validate_region_codes_match(primary_names, short_ids, regions):
             ]:
         tz_regions[long_name] = region
 
-    # Compare our regions with tzdata.
+    # Compare our regions with tzdb.
     for long_name in short_ids.keys():
         our_reg = regions[short_ids[long_name]]
         if long_name not in tz_regions:
             continue
         tz_reg = tz_regions[long_name]
         if our_reg != tz_reg:
-            print("FAILED -- '%s' has region '%s' but tzdata has '%s'" %
+            print("FAILED -- '%s' has region '%s' but tzdb has '%s'" %
                   (long_name, our_reg, tz_reg))
             exit(1)
-    print("All region codes match tzdata")
+    print("All region codes match tzdb")
 
 
 def validate_2char_ids_match_regions(regions):
