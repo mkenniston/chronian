@@ -1,5 +1,6 @@
 // -*- coding: utf-8 -*-
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "util.h"
 

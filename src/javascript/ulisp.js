@@ -11,7 +11,7 @@ function main() {
     lex = reader.read_lexeme()
   }
   
-  util.fatal_error("Done!")
+  console.log("Done!")
 }
 
 main()

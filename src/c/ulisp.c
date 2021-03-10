@@ -1,5 +1,7 @@
 // -*- coding: utf-8 -*-
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "reader.h"
 #include "util.h"
 
@@ -10,6 +12,7 @@ void main(char **argv) {
     Lexeme_print(lex);
     lex = Reader_read_lexeme(reader);
   }
-  fatal_error("Done!");
+  printf("Done!\n");
+  exit(0);
 }
 

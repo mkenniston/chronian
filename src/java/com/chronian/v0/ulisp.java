@@ -18,7 +18,7 @@ class ULisp {
       System.out.println(lex);
       lex = reader.read_lexeme();
     }
-    Util.fatal_error("Done!");
+    System.out.println("Done!");
   }
 }
 

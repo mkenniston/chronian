@@ -6,7 +6,6 @@ Main program to run micro-lisp interpreter, which in turn
 will run automated tests for Chronian.
 """
 
-from util import fatal_error
 from reader import Reader
 from sexpr import EOFToken
 
@@ -32,7 +31,7 @@ def main():
   reader = Reader()
   # dump_lexemes(reader)
   dump_sexprs(reader)
-  fatal_error("Done!")
+  print("Done!")
 
 
 main()

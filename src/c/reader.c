@@ -24,11 +24,6 @@ regex_t FLOAT_RE;
 regex_t BREAK_RE;
 
 
-void fatal_error(char *msg) {
-  printf("%s\n", msg);
-  exit(1);
-}
-
 void append_char(char **buf, char c) {
   size_t len = *buf ? strlen(*buf) : 0;
   char *tmp = malloc(len + 1 + 1);
